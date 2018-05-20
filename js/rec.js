@@ -5,12 +5,14 @@ let currentSelect;
 let currentInput = [];
 let expectedSize;
 
+let tempResults = {};
+
 
 function parseJSON(json = funcJSON) {
     let list = $("#functionList");
     list.html("");
     Object.keys(json).forEach(function (key) {
-        let toAppend = '<label id="' + key + '" class="btn btn-block btn-outline-secondary"><input type="radio" name="options" id="radio' + key + '" autocomplete="off">' + key + '</label>';
+        let toAppend = '<label id="' + key + '" class="btn btn-block btn-outline-success"><input type="radio" name="options" id="radio' + key + '" autocomplete="off">' + key + '</label>';
         list.append(toAppend);
     });
     funcJSON = json;
@@ -407,8 +409,6 @@ function createFunctionCreateString(inner) {
     }
 }
 
-
-let tempResults = {};
 
 function newCalculate(name, input) {
     let result;

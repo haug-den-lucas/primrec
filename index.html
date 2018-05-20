@@ -20,15 +20,20 @@
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+        <ul class="navbar-nav nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="https://github.com/Ich5003/primrec/">GitHub</a>
+            </li>
+        </ul>
     </div>
 </nav>
 
 <section id="func">
     <div class="container">
         <div id="accordion" role="tablist" aria-multiselectable="true">
-            <div class="card">
-                <div class="card-header" role="tab">
+            <div class="card bg-light">
+                <div class="card-header " role="tab">
                     <h3 id="funName" class="text-center">Bitte unten Funktion anklicken</h3>
                 </div>
 
@@ -146,8 +151,8 @@
                             soll:</label>
                         <div class="row">
                             <h5>
-                                <div id="recParam" class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
-                                </div>
+                                <span id="recParam" class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                                </span>
                             </h5>
 
                         </div>
@@ -156,10 +161,10 @@
                         <label for="recParam">Bitte definiere den Rekursionsstart</label>
                         <div class="row">
                             <h5>
-                                <div id="createFunInit" class="btn-group btn-block btn-group-toggle"
-                                     style="display: none;" data-toggle="buttons">
+                                <span id="createFunInit" class="btn-group btn-block btn-group-toggle"
+                                      style="display: none;" data-toggle="buttons">
 
-                                </div>
+                                </span>
                             </h5>
 
                         </div>
@@ -191,10 +196,10 @@
                         <label for="recParam">Bitte definiere die Funktion</label>
                         <div class="row">
                             <h5>
-                                <div id="createFunRec" class="btn-group btn-block btn-group-toggle"
-                                     data-toggle="buttons">
+                                <span id="createFunRec" class="btn-group btn-block btn-group-toggle"
+                                      data-toggle="buttons">
 
-                                </div>
+                                </span>
                             </h5>
 
                         </div>

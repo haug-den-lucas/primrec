@@ -1,0 +1,516 @@
+{
+  "add": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "s",
+        "inner": [
+          {
+            "name": "add"
+          }
+        ]
+      }
+    ]
+  },
+  "mult": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "mult"
+          },
+          {
+            "name": "param",
+            "inner": 1
+          }
+        ]
+      }
+    ]
+  },
+  "dec": {
+    "params": 1,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ]
+  },
+  "sub": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 1,
+    "recDef": [
+      {
+        "name": "dec",
+        "inner": [
+          {
+            "name": "sub"
+          }
+        ]
+      }
+    ]
+  },
+  "zero": {
+    "params": 1,
+    "type": 1,
+    "init": [
+      {
+        "name": "sub",
+        "inner": [
+          {
+            "name": "const",
+            "inner": 1
+          },
+          {
+            "name": "param",
+            "inner": 0
+          }
+        ]
+      }
+    ]
+  },
+  "even": {
+    "params": 1,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "zero",
+        "inner": [
+          {
+            "name": "even"
+          }
+        ]
+      }
+    ]
+  },
+  "odd": {
+    "params": 1,
+    "type": 1,
+    "init": [
+      {
+        "name": "zero",
+        "inner": [
+          {
+            "name": "even",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "half": {
+    "params": 1,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "half"
+          },
+          {
+            "name": "odd",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "leq": {
+    "params": 2,
+    "type": 1,
+    "init": [
+      {
+        "name": "zero",
+        "inner": [
+          {
+            "name": "sub",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "eq": {
+    "params": 2,
+    "type": 1,
+    "init": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          },
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 1
+              },
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "between": {
+    "params": 3,
+    "type": 1,
+    "init": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          },
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 1
+              },
+              {
+                "name": "param",
+                "inner": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "ifzero": {
+    "params": 3,
+    "type": 1,
+    "init": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "zero",
+                "inner": [
+                  {
+                    "name": "param",
+                    "inner": 0
+                  }
+                ]
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          },
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "zero",
+                "inner": [
+                  {
+                    "name": "zero",
+                    "inner": [
+                      {
+                        "name": "param",
+                        "inner": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "param",
+                "inner": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "max": {
+    "params": 2,
+    "type": 1,
+    "init": [
+      {
+        "name": "ifzero",
+        "inner": [
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "inner": 0
+          },
+          {
+            "name": "param",
+            "inner": 1
+          }
+        ]
+      }
+    ]
+  },
+  "fallfac": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "fallfac"
+          },
+          {
+            "name": "sub",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 1
+              },
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "risefac": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "risefac"
+          },
+          {
+            "name": "add",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fac": {
+    "params": 1,
+    "type": 1,
+    "init": [
+      {
+        "name": "risefac",
+        "inner": [
+          {
+            "name": "param",
+            "inner": 0
+          },
+          {
+            "name": "const",
+            "inner": 1
+          }
+        ]
+      }
+    ]
+  },
+  "over2": {
+    "params": "1",
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "over2",
+            "init": 0
+          },
+          {
+            "name": "param",
+            "init": 0,
+            "inner": 0
+          }
+        ]
+      }
+    ]
+  },
+  "c": {
+    "params": "2",
+    "type": 1,
+    "init": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "over2",
+            "init": 0,
+            "inner": [
+              {
+                "name": "s",
+                "init": 0,
+                "inner": [
+                  {
+                    "name": "add",
+                    "init": 0,
+                    "inner": [
+                      {
+                        "name": "param",
+                        "init": 0,
+                        "inner": 0
+                      },
+                      {
+                        "name": "param",
+                        "init": 0,
+                        "inner": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "init": 0,
+            "inner": 0
+          }
+        ]
+      }
+    ]
+  }
+}

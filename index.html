@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <title>Primitive Recursive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <!--<link href="bootstrap-theme.css" rel="stylesheet">-->
+    <link href="css/own.css" rel="stylesheet">
+</head>
+<body class="">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="index.html">Primitve Recursive Simulator</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    </div>
+</nav>
+
+<section id="func">
+    <div class="container">
+        <div id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="card">
+                <div class="card-header" role="tab">
+                    <h3 id="funName" class="text-center">Bitte unten Funktion anklicken</h3>
+                </div>
+
+                <div class="card-block">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5 id="funDef"></h5>
+                            <button id="delete" style="display: none;" type="button" class="btn btn-outline-danger">
+                                Delete
+                            </button>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 id="funInsert">
+
+                            </h4>
+                            <button id="doCalc" style="display: none;" type="button" class="btn btn-primary">Calculate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="funcChooser">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <label for="functionList">Funktionen:</label>
+                <div id="functionList" class="btn-group btn-group-vertical btn-block btn-group-toggle"
+                     data-toggle="buttons"></div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="jsonArea">Dein Code (bitte speichern):</label>
+                    <textarea class="form-control" id="jsonArea" rows="10"></textarea>
+                </div>
+                <button id="createFunction" type="button" data-toggle="modal" data-target="#addFunctionModal"
+                        class="btn btn-outline-success">Funktion erstellen
+                </button>
+                <button id="loadCode" type="button" class="btn btn-outline-success float-right">Code laden</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Modal -->
+<div class="modal fade" id="addFunctionModal" tabindex="-1" role="dialog" aria-labelledby="addFunctionModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFunctionModalLabel">Funktion hinzufügen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group row">
+                        <label for="newName" class="col-sm-3 col-form-label">Name</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="newName" placeholder="Name der Funktion">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="newParams" class="col-sm-3 col-form-label">Parameter</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="newParams" placeholder="Anzahl der Parameter">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label for="typeGroup">Wie ist deine Funktion definiert?</label>
+                        <div class="row">
+                            <div id="typeGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
+                                 data-toggle="buttons">
+                                <label id="labelNewType0" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="newType0" autocomplete="off">
+                                    Nur zusammengesetzt aus anderen Funktionen
+                                </label>
+                                <label id="labelNewType1" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="newType1" autocomplete="off">
+                                    Rekursiv definiert
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="nextStep1" type="button" class="btn btn-primary">Weiter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="recursiveFunctionModal" tabindex="-1" role="dialog"
+     aria-labelledby="recursiveFunctionModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recursiveFunctionModalLabel">Rekursionsanfang</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="h-divider form-group col-sm-12">
+                        <label for="recParam">Wähle den Parameter aus, über welchen die Rekursion definiert sein
+                            soll:</label>
+                        <div class="row">
+                            <h5>
+                                <div id="recParam" class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                                </div>
+                            </h5>
+
+                        </div>
+                    </div>
+                    <div id="createFunDiv" class="form-group col-sm-12">
+                        <label for="recParam">Bitte definiere den Rekursionsstart</label>
+                        <div class="row">
+                            <h5>
+                                <div id="createFunInit" class="btn-group btn-block btn-group-toggle"
+                                     style="display: none;" data-toggle="buttons">
+
+                                </div>
+                            </h5>
+
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="nextStep2" type="button" class="btn btn-primary">Weiter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="finalFunctionModal" tabindex="-1" role="dialog" aria-labelledby="finalFunctionModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="finalFunctionModalLabel">Definition</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div id="createFinalFunDiv" class="form-group col-sm-12">
+                        <label for="recParam">Bitte definiere die Funktion</label>
+                        <div class="row">
+                            <h5>
+                                <div id="createFunRec" class="btn-group btn-block btn-group-toggle"
+                                     data-toggle="buttons">
+
+                                </div>
+                            </h5>
+
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="finishCreate" type="button" class="btn btn-primary">Fertig</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chooseTypeModal" tabindex="-1" role="dialog" aria-labelledby="chooseFunctionModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chooseTypeModalTitle">Typ wählen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group col-sm-12">
+                        <label for="typeGroup">Was soll hier eingefügt werden?</label>
+                        <div class="row">
+                            <div id="innerTypeGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
+                                 data-toggle="buttons">
+                                <label id="labelConstant" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="constant" autocomplete="off">
+                                    Eine Konstante
+                                </label>
+                                <label id="labelParam" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="param" autocomplete="off">
+                                    Ein Parameter
+                                </label>
+                                <label id="labelSucc" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="succ" autocomplete="off">
+                                    Die Successorfunktion (addiert 1)
+                                </label>
+                                <label id="labelInnerFunction" class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="innerFunction" autocomplete="off">
+                                    Eine Funktion
+                                </label>
+                                <label id="labelRecDef" style="display: none;"
+                                       class="btn btn-block btn-outline-secondary">
+                                    <input type="radio" name="options" id="recDef" autocomplete="off">
+                                    Rekursive Definition dieser Funktion
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chooseFunctionModal" tabindex="-1" role="dialog" aria-labelledby="chooseFunctionModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chooseFunctionModalLabel">Funktion wählen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group col-sm-12">
+                        <label for="typeGroup">Was soll hier eingefügt werden?</label>
+                        <div class="row">
+                            <div id="innerFunctionGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
+                                 data-toggle="buttons">
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+        integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        crossorigin="anonymous"></script>
+<script src="js/rec.js"></script>
+</body>
+</html>

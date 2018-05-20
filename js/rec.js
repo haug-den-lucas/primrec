@@ -5,17 +5,6 @@ let currentSelect;
 let currentInput = [];
 let expectedSize;
 
-/*function getJSON(){
-    let xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            funcJSON = JSON.parse(this.responseText);
-            parseJSON();
-        }
-    };
-    xmlhttp.open("GET", "files/test.json", true);
-    xmlhttp.send();
-}*/
 
 function parseJSON(json = funcJSON) {
     let list = $("#functionList");
@@ -417,62 +406,6 @@ function createFunctionCreateString(inner) {
         return toReturn + ")";
     }
 }
-
-
-/*function calculateOld(name, input) {
-    if (!(name in funcJSON) && !funcPreDefined.includes(name)) {
-        throw "Die Funktion '" + name + "' existiert nicht.";
-    } else {
-        let funNow = funcJSON[name];
-        let type = "";
-        let newInput = input.slice(0);
-
-        if (funNow["type"] === 1 || input[funNow["recDefIndex"]] === 0) {
-            type = "init";
-        } else if (funNow["type"] === 0) {
-            newInput[funNow["recDefIndex"]] = input[funNow["recDefIndex"]] - 1;
-            if (newInput[funNow["recDefIndex"]] < 0) {
-                newInput[funNow["recDefIndex"]] = 0;
-            }
-
-            type = "recDef"
-        }
-
-        let result;
-        let nameNow = funNow[type][0]["name"];
-        let valueNow = funNow[type][0]["inner"];
-        if (nameNow === "s") {
-            result = calculateOld(valueNow[0]["name"], newInput) + 1;
-        } else if (nameNow === "const") {
-            result = valueNow;
-        } else if (nameNow === "param") {
-            result = newInput[valueNow];
-        } else {
-            result = calculateOld(nameNow, getNextInput(name, valueNow, newInput));
-        }
-
-        return result;
-    }
-}
-
-function getNextInput(origName, inner, newInput){
-    let nextInput = [];
-    for (let i = 0; i < inner.length; i++) {
-        let nameNow = inner[i]["name"];
-        let innerNow = inner[i]["inner"];
-
-        if (nameNow === origName) {
-            nextInput[i] = calculateOld(origName, newInput);
-        } else if (nameNow === "param") {
-            nextInput[i] = newInput[innerNow];
-        } else if (nameNow === "const") {
-            nextInput[i] = innerNow;
-        } else {
-            nextInput[i] = calculateOld(nameNow, getNextInput(origName, innerNow, newInput));
-        }
-    }
-    return nextInput;
-}*/
 
 
 let tempResults = {};

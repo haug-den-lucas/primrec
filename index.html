@@ -40,16 +40,24 @@
                 <div class="card-block">
                     <div class="row">
                         <div class="col-md-4">
-                            <h5 id="funDef"></h5>
+                            <h4 id="funDef"></h4>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 id="funInsert"></h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button id="createFunction" type="button" data-toggle="modal"
+                                    data-target="#addFunctionModal"
+                                    class="btn btn-outline-success">Funktion erstellen
+                            </button>
                             <button id="delete" style="display: none;" type="button" class="btn btn-outline-danger">
-                                Delete
+                                Löschen
                             </button>
                         </div>
                         <div class="col-md-8">
-                            <h4 id="funInsert">
-
-                            </h4>
-                            <button id="doCalc" style="display: none;" type="button" class="btn btn-primary">Calculate
+                            <button id="doCalc" style="display: none;" type="button" class="btn btn-primary">Berechnen
                             </button>
                         </div>
                     </div>
@@ -72,9 +80,6 @@
                     <label for="jsonArea">Dein Code (bitte speichern):</label>
                     <textarea class="form-control" id="jsonArea" rows="10"></textarea>
                 </div>
-                <button id="createFunction" type="button" data-toggle="modal" data-target="#addFunctionModal"
-                        class="btn btn-outline-success">Funktion erstellen
-                </button>
                 <button id="loadCode" type="button" class="btn btn-outline-success float-right">Code laden</button>
             </div>
         </div>

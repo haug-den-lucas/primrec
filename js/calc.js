@@ -37,6 +37,15 @@ function calculateAdv(jsonFunc, input, origname, recDefIndex = -1) {
     } else if (name === "const") {
         result = inner;
         return result;
+    } else if (name === origname) {
+        if (recDefIndex > -1) {
+            let newInput = input.slice(0);
+            newInput[recDefIndex] = newInput[recDefIndex] - 1;
+            result = calculate(origname, newInput);
+            return result;
+        } else {
+            throw "Unerlaubte Rekursion";
+        }
     }
 
     for (let i = 0; i < inner.length; i++) {

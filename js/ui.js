@@ -326,7 +326,7 @@ function showInitFunctionCreate() {
         createFun = $("#createFunRec");
     }
 
-    let def = getFunctionDefString(newName, newParamAmount, newRecIndex, true);
+    let def = getFunctionDefString(newName, newParamAmount, newRecIndex, currentStep === 1);
 
     placeholders = [];
     currentMaxPlaceholder = 0;

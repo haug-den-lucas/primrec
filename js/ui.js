@@ -1,25 +1,3 @@
-/*function getStringByInner(inner, initialAmount, initIndex = -1) {
-    let toReturn = "";
-    if (inner === undefined) {
-        for (let i = 0; i < initialAmount; i++) {
-            toReturn += String.fromCharCode(97 + i) + ", ";
-        }
-        return toReturn.slice(0, -2);
-    }
-    inner.forEach(function (element) {
-        if (element["name"] === "param") {
-            if (element["inner"] === initIndex) toReturn += "0";
-            else toReturn += String.fromCharCode(97 + element["inner"]);
-        } else if (element["name"] === "const") {
-            toReturn += element["inner"];
-        } else {
-            toReturn += element["name"] + "(" + getStringByInner(element["inner"], initialAmount, initIndex) + ")";
-        }
-        toReturn += ", ";
-    });
-    return toReturn.slice(0, -2);
-}*/
-
 function getFunctionDefString(name, params, recDefIndex = -1, isInit = false) {
     let toReturn = "";
 
@@ -40,6 +18,41 @@ function getFunctionDefString(name, params, recDefIndex = -1, isInit = false) {
             toReturn += ", "
     }
     return toReturn + ")";
+}
+
+function createFunctionString(name, params, inner, recDefIndex = -1) {
+    if (inner["name"] === "placeholder") {
+        placeholders[currentMaxPlaceholder] = inner;
+        let toReturn = '<label id="placeholderInitLabel' + currentMaxPlaceholder + '" class="btn btn-sm btn-outline-secondary"><input type="radio" name="options" id="placeholderInit' + currentMaxPlaceholder + '" autocomplete="off">+</label>';
+        currentMaxPlaceholder++;
+        return toReturn;
+    } else if (inner["name"] === "const") {
+        return inner["inner"];
+    } else if (inner["name"] === "param") {
+        let val = inner["inner"];
+        if (val === recDefIndex) {
+            return "0";
+        } else {
+            return String.fromCharCode(97 + val);
+        }
+    } else if (inner["name"] === name) {
+        let def = name + "(";
+        for (let i = 0; i < params; i++) {
+            def += String.fromCharCode(97 + i);
+            if (i < params - 1)
+                def += ", "
+        }
+        return def + ")";
+    } else {
+        let toReturn = inner["name"] + "(";
+        for (let i = 0; i < inner["inner"].length; i++) {
+            toReturn += createFunctionString(name, params, inner["inner"][i], recDefIndex);
+            if (i < inner["inner"].length - 1) {
+                toReturn += ", ";
+            }
+        }
+        return toReturn + ")";
+    }
 }
 
 
@@ -347,39 +360,3 @@ $("#finishCreate").click(function () {
     parseJSON(funcJSON);
     $("#finalFunctionModal").modal("hide");
 });
-
-
-function createFunctionString(name, params, inner, recDefIndex = -1) {
-    if (inner["name"] === "placeholder") {
-        placeholders[currentMaxPlaceholder] = inner;
-        let toReturn = '<label id="placeholderInitLabel' + currentMaxPlaceholder + '" class="btn btn-sm btn-outline-secondary"><input type="radio" name="options" id="placeholderInit' + currentMaxPlaceholder + '" autocomplete="off">+</label>';
-        currentMaxPlaceholder++;
-        return toReturn;
-    } else if (inner["name"] === "const") {
-        return inner["inner"];
-    } else if (inner["name"] === "param") {
-        let val = inner["inner"];
-        if (val === recDefIndex) {
-            return "0";
-        } else {
-            return String.fromCharCode(97 + val);
-        }
-    } else if (inner["name"] === name) {
-        let def = name + "(";
-        for (let i = 0; i < params; i++) {
-            def += String.fromCharCode(97 + i);
-            if (i < params - 1)
-                def += ", "
-        }
-        return def + ")";
-    } else {
-        let toReturn = inner["name"] + "(";
-        for (let i = 0; i < inner["inner"].length; i++) {
-            toReturn += createFunctionString(name, params, inner["inner"][i], recDefIndex);
-            if (i < inner["inner"].length - 1) {
-                toReturn += ", ";
-            }
-        }
-        return toReturn + ")";
-    }
-}

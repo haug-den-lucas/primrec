@@ -1,28 +1,4 @@
-let funcJSON = {};
-let funcPreDefined = ["s", "param", "const", "placeholder"];
-
-let currentSelect;
-let currentInput = [];
-let expectedSize;
-
-let tempResults = {};
-
-
-function parseJSON(json = funcJSON) {
-    let list = $("#functionList");
-    list.html("");
-    Object.keys(json).forEach(function (key) {
-        let toAppend = '<label id="' + key + '" class="btn btn-block btn-outline-success"><input type="radio" name="options" id="radio' + key + '" autocomplete="off">' + key + '</label>';
-        list.append(toAppend);
-    });
-    funcJSON = json;
-    setJSON();
-    tempResults = {};
-}
-
-$("#functionList").click(onSelect);
-
-function getStringByInner(inner, initIndex = -1, initialAmount) {
+/*function getStringByInner(inner, initialAmount, initIndex = -1) {
     let toReturn = "";
     if (inner === undefined) {
         for (let i = 0; i < initialAmount; i++) {
@@ -37,14 +13,37 @@ function getStringByInner(inner, initIndex = -1, initialAmount) {
         } else if (element["name"] === "const") {
             toReturn += element["inner"];
         } else {
-            toReturn += element["name"] + "(" + getStringByInner(element["inner"], initIndex, initialAmount) + ")";
+            toReturn += element["name"] + "(" + getStringByInner(element["inner"], initialAmount, initIndex) + ")";
         }
         toReturn += ", ";
     });
     return toReturn.slice(0, -2);
+}*/
+
+function getFunctionDefString(name, params, recDefIndex = -1, isInit = false) {
+    let toReturn = "";
+
+    toReturn += name + "(";
+    for (let i = 0; i < params; i++) {
+        if (i === recDefIndex) {
+            if (isInit) {
+                toReturn += 0;
+            } else {
+                toReturn += String.fromCharCode(97 + i) + "+1";
+            }
+        } else {
+            toReturn += String.fromCharCode(97 + i);
+        }
+
+
+        if (i < params - 1)
+            toReturn += ", "
+    }
+    return toReturn + ")";
 }
 
-function onSelect(event) {
+
+$("#functionList").click(function (event) {
     $("#delete").show();
     $("#doCalc").show();
     let idNow = event.target.id;
@@ -58,43 +57,22 @@ function onSelect(event) {
     let def = "";
 
     let typeNow = "init";
-
     let recDefIndex = -1;
 
     if (objNow["type"] === 0) {
         typeNow = "recDef";
         recDefIndex = objNow["recDefIndex"];
-        def += idNow + "(";
-        for (let i = 0; i < objNow["params"]; i++) {
-            if (i === recDefIndex) {
-                def += 0;
-            } else {
-                def += String.fromCharCode(97 + i);
-            }
-
-            if (i < objNow["params"] - 1)
-                def += ", "
-        }
-        def += ") = " + getStringByInner(objNow["init"], recDefIndex, objNow["params"]) + "<br>";
+        def = getFunctionDefString(idNow, objNow["params"], recDefIndex, true) + " = " + createFunctionString(idNow, objNow["params"], objNow["init"][0], recDefIndex) + "<br>";
     }
 
     let buttonCreate = idNow + "(";
-    def += idNow + "(";
+    def += getFunctionDefString(idNow, objNow["params"], recDefIndex) + " = " + createFunctionString(idNow, objNow["params"], objNow[typeNow][0]);
     for (let i = 0; i < objNow["params"]; i++) {
-        if (i === recDefIndex) {
-            def += String.fromCharCode(97 + i) + "+1";
-        } else {
-            def += String.fromCharCode(97 + i);
-        }
         buttonCreate += '<button type="button" id="param' + i + '" class="btn btn-secondary btn-sm">' + String.fromCharCode(97 + i) + '</button>';
         if (i < objNow["params"] - 1) {
-            def += ", ";
             buttonCreate += ", ";
         }
-
-
     }
-    def += ") = " + getStringByInner(objNow[typeNow], -1, objNow["params"]);
 
     $("#funDef").html(def);
     $("#funInsert").html(buttonCreate + ") = <span id='solution'></span>");
@@ -102,7 +80,7 @@ function onSelect(event) {
     for (let i = 0; i < objNow["params"]; i++) {
         $("#param" + i).click(paramButtonClicked);
     }
-}
+});
 
 function paramButtonClicked(event) {
     let input = prompt("Wert eingeben:");
@@ -299,6 +277,9 @@ function innerTypeGroupChosen(event) {
 }
 
 function createFunInitClicked(event) {
+    if (event.target.id === "createFunRec" || event.target.id === "createFunInit") {
+        return;
+    }
     $("#chooseTypeModal").modal('show');
     let labelRecDef = $("#labelRecDef");
     if (newType === 0 && currentStep === 2) {
@@ -332,27 +313,20 @@ function showInitFunctionCreate() {
         createFun = $("#createFunRec");
     }
 
-    let def = newName + "(";
-    for (let i = 0; i < newParamAmount; i++) {
-        if (i === newRecIndex) {
-            if (currentStep === 1)
-                def += "0";
-            else
-                def += String.fromCharCode(97 + i) + "+1";
-        } else {
-            def += String.fromCharCode(97 + i);
-        }
-        if (i < newParamAmount - 1)
-            def += ", "
-    }
+    let def = getFunctionDefString(newName, newParamAmount, newRecIndex, true);
+
     placeholders = [];
     currentMaxPlaceholder = 0;
-    let neededParam = newInit[0];
+    let functionCreateString;
     if (newType === 0 && currentStep === 2) {
-        neededParam = newRecDef[0];
+        functionCreateString = createFunctionString(newName, newParamAmount, newRecDef[0]);
+    } else if (currentStep === 1) {
+        functionCreateString = createFunctionString(newName, newParamAmount, newInit[0], newRecIndex);
+    } else {
+        functionCreateString = createFunctionString(newName, newParamAmount, newInit[0]);
     }
-    let functionCreateString = createFunctionCreateString(neededParam);
-    createFun.html(def + ") = " + functionCreateString);
+
+    createFun.html(def + " = " + functionCreateString);
 
     if (currentStep === 1) createFun.show();
 }
@@ -374,7 +348,8 @@ $("#finishCreate").click(function () {
     $("#finalFunctionModal").modal("hide");
 });
 
-function createFunctionCreateString(inner) {
+
+function createFunctionString(name, params, inner, recDefIndex = -1) {
     if (inner["name"] === "placeholder") {
         placeholders[currentMaxPlaceholder] = inner;
         let toReturn = '<label id="placeholderInitLabel' + currentMaxPlaceholder + '" class="btn btn-sm btn-outline-secondary"><input type="radio" name="options" id="placeholderInit' + currentMaxPlaceholder + '" autocomplete="off">+</label>';
@@ -384,23 +359,23 @@ function createFunctionCreateString(inner) {
         return inner["inner"];
     } else if (inner["name"] === "param") {
         let val = inner["inner"];
-        if (currentStep === 1 && val === newRecIndex) {
+        if (val === recDefIndex) {
             return "0";
         } else {
             return String.fromCharCode(97 + val);
         }
-    } else if (inner["name"] === newName) {
-        let def = newName + "(";
-        for (let i = 0; i < newParamAmount; i++) {
+    } else if (inner["name"] === name) {
+        let def = name + "(";
+        for (let i = 0; i < params; i++) {
             def += String.fromCharCode(97 + i);
-            if (i < newParamAmount - 1)
+            if (i < params - 1)
                 def += ", "
         }
         return def + ")";
     } else {
         let toReturn = inner["name"] + "(";
         for (let i = 0; i < inner["inner"].length; i++) {
-            toReturn += createFunctionCreateString(inner["inner"][i]);
+            toReturn += createFunctionString(name, params, inner["inner"][i], recDefIndex);
             if (i < inner["inner"].length - 1) {
                 toReturn += ", ";
             }
@@ -408,103 +383,3 @@ function createFunctionCreateString(inner) {
         return toReturn + ")";
     }
 }
-
-
-function newCalculate(name, input) {
-    let result;
-    if (tempResults[name] === undefined) {
-        tempResults[name] = {};
-    }
-    if (tempResults[name][JSON.stringify(input)] !== undefined) {
-        return tempResults[name][JSON.stringify(input)];
-    }
-
-    // noinspection FallThroughInSwitchStatementJS
-    switch (funcJSON[name]["type"]) {
-        case 0:
-            if (input[funcJSON[name]["recDefIndex"]] > 0) {
-                result = calculateAdv(funcJSON[name]["recDef"][0], input, name, funcJSON[name]["recDefIndex"]);
-                break;
-            }
-        case 1:
-            result = calculateAdv(funcJSON[name]["init"][0], input, name);
-            break;
-    }
-    tempResults[name][JSON.stringify(input)] = result;
-    return result;
-}
-
-
-function calculate(name, input) {
-    let result;
-    if (tempResults[name] === undefined) {
-        tempResults[name] = {};
-    }
-    if (tempResults[name][JSON.stringify(input)] !== undefined) {
-        return tempResults[name][JSON.stringify(input)];
-    }
-
-    // noinspection FallThroughInSwitchStatementJS
-    switch (funcJSON[name]["type"]) {
-        case 0:
-            if (input[funcJSON[name]["recDefIndex"]] > 0) {
-                result = calculateAdv(funcJSON[name]["recDef"][0], input, name, funcJSON[name]["recDefIndex"]);
-                break;
-            }
-        case 1:
-            result = calculateAdv(funcJSON[name]["init"][0], input, name);
-            break;
-    }
-    tempResults[name][JSON.stringify(input)] = result;
-    return result;
-}
-
-function calculateAdv(jsonFunc, input, origname, recDefIndex = -1) {
-    let name = jsonFunc["name"];
-    let inner = jsonFunc["inner"];
-
-    let result;
-    const nextInput = [];
-
-    if (name === "param") {
-        result = input[inner];
-        if (inner === recDefIndex)
-            result--;
-        return result;
-    } else if (name === "const") {
-        result = inner;
-        return result;
-    }
-
-    for (let i = 0; i < inner.length; i++) {
-        if (inner[i]["name"] === origname) {
-            if (recDefIndex > -1) {
-                let newInput = input.slice(0);
-                newInput[recDefIndex] = newInput[recDefIndex] - 1;
-                nextInput[i] = calculate(inner[i]["name"], newInput);
-
-            } else {
-                throw "Unerlaubte Rekursion";
-            }
-        } else {
-            nextInput[i] = calculateAdv(inner[i], input, origname, recDefIndex);
-        }
-    }
-
-
-    if (name === "s") {
-        result = nextInput[0] + 1;
-    } else {
-        result = calculate(name, nextInput);
-    }
-    return result;
-}
-
-
-function getData() {
-    if (typeof(Storage) !== "undefined") {
-        parseJSON(JSON.parse(localStorage.getItem("json")));
-    }
-}
-
-getData();

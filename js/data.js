@@ -6,6 +6,7 @@ let currentInput = [];
 let expectedSize;
 
 let tempResults = {};
+let recMaxTemp = {};
 
 function getDataFromLocalStorage() {
     if (typeof(Storage) !== "undefined") {

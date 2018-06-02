@@ -1,26 +1,4 @@
 function calculate(name, input) {
-    /*let result;
-    if (tempResults[name] === undefined) {
-        tempResults[name] = {};
-    }
-    if (tempResults[name][JSON.stringify(input)] !== undefined) {
-        return tempResults[name][JSON.stringify(input)];
-    }
-
-    // noinspection FallThroughInSwitchStatementJS
-    switch (funcJSON[name]["type"]) {
-        case 0:
-            if (input[funcJSON[name]["recDefIndex"]] > 0) {
-                result = calculateAdv(funcJSON[name]["recDef"][0], input, name, funcJSON[name]["recDefIndex"]);
-                break;
-            }
-        case 1:
-            result = calculateAdv(funcJSON[name]["init"][0], input, name);
-            break;
-    }
-    tempResults[name][JSON.stringify(input)] = result;
-    return result;*/
-
     let result;
     if (tempResults[name] === undefined) {
         tempResults[name] = {};
@@ -74,7 +52,6 @@ function calculateRec(name, input) {
     inputToChange = input.slice(0);
     for (let i = currentRecMax + 1; i <= input[recDefIndex]; i++) {
         inputToChange[recDefIndex] = i;
-        //let nextInput = doNextInputCalc(func["recDef"][0]["inner"], inputToChange, name, recDefIndex, lastResult);
         lastResult = calculateAdv(func["recDef"][0], inputToChange, name, recDefIndex, lastResult);
     }
 

@@ -44,33 +44,41 @@ function calculate(name, input) {
 
 function calculateRec(name, input) {
     let currentRecMax = 0;
+    let func = funcJSON[name];
+    let recDefIndex = func["recDefIndex"];
+
+
     if (recMaxTemp[name] === undefined) {
         recMaxTemp[name] = {};
     }
     let inputToChange = input.slice(0);
-    let splicedInputString = JSON.stringify(inputToChange.splice(funcJSON[name]["recDefIndex"], 1));
-    if (tempResults[name][splicedInputString] !== undefined) {
-        currentRecMax = tempResults[name][splicedInputString];
+    inputToChange.splice(recDefIndex, 1);
+    let splicedInputString = JSON.stringify(inputToChange);
+    if (recMaxTemp[name][splicedInputString] !== undefined) {
+        currentRecMax = recMaxTemp[name][splicedInputString];
     }
 
-    let func = funcJSON[name];
-    let recDefIndex = func["recDefIndex"];
+
     let lastResult = 0;
 
+    inputToChange = input.slice(0);
     if (currentRecMax === 0) {
-        lastResult = calculateAdv(func["init"][0], input, name);
+        inputToChange[recDefIndex] = 0;
+        lastResult = calculateAdv(func["init"][0], inputToChange, name);
     } else {
-        lastResult = tempResults[name][splicedInputString];
+        inputToChange = input.slice(0);
+        inputToChange[recDefIndex] = currentRecMax;
+        lastResult = tempResults[name][JSON.stringify(inputToChange)];
     }
 
-    let tempInput = input.slice(0);
-    for (let i = currentRecMax + 1; i < input[recDefIndex]; i++) {
-        tempInput[recDefIndex] = i;
-        let nextInput = doNextInputCalc(func["recDef"][0]["inner"], tempInput, name, recDefIndex, lastResult);
-        calculateAdv(func["recDef"][0], nextInput, name, recDefIndex, lastResult);
+    inputToChange = input.slice(0);
+    for (let i = currentRecMax + 1; i <= input[recDefIndex]; i++) {
+        inputToChange[recDefIndex] = i;
+        //let nextInput = doNextInputCalc(func["recDef"][0]["inner"], inputToChange, name, recDefIndex, lastResult);
+        lastResult = calculateAdv(func["recDef"][0], inputToChange, name, recDefIndex, lastResult);
     }
 
-    tempResults[name][splicedInputString] = input[recDefIndex];
+    recMaxTemp[name][splicedInputString] = input[recDefIndex];
     return lastResult;
 }
 

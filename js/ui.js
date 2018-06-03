@@ -123,7 +123,6 @@ $("#doCalc").click(function () {
     } catch (err) {
         $("#solution").html(err);
     }
-
 });
 
 $("#loadCode").click(function () {

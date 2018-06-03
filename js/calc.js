@@ -32,7 +32,7 @@ function calculateRec(name, input) {
     let inputToChange = input.slice(0);
     inputToChange.splice(recDefIndex, 1);
     let splicedInputString = JSON.stringify(inputToChange);
-    if (recMaxTemp[name][splicedInputString] !== undefined) {
+    if (recMaxTemp[name][splicedInputString] !== undefined && recMaxTemp[name][splicedInputString] <= input[recDefIndex]) {
         currentRecMax = recMaxTemp[name][splicedInputString];
     }
 

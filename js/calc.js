@@ -82,9 +82,9 @@ function calculateAdv(jsonFunc, input, origname, recDefIndex = -1, lastResult) {
     }
 
     const nextInput = doNextInputCalc(inner, input, origname, recDefIndex, lastResult);
-    if (name === "add") {
+    if (name === validatedFunctions["add"]) {
         result = nextInput[0] + nextInput[1];
-    } else if (name === "mult") {
+    } else if (name === validatedFunctions["mult"]) {
         result = nextInput[0] * nextInput[1];
     } else if (name === "s") {
         result = nextInput[0] + 1;

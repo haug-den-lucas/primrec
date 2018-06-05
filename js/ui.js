@@ -57,10 +57,16 @@ function createFunctionString(name, params, inner, recDefIndex = -1) {
 
 
 $("#functionList").click(function (event) {
-    $("#delete").show();
+
     $("#doCalc").show();
+    let delButton = $("#delete");
+    delButton.show();
+
     let idNow = event.target.id;
-    let objNow = funcJSON[idNow];
+    let objNow = getJson(idNow);
+    if (funcPreDefined.includes(idNow))
+        delButton.hide();
+
     currentSelect = idNow;
     currentInput = [];
     expectedSize = objNow["params"];
@@ -123,7 +129,6 @@ $("#doCalc").click(function () {
     } catch (err) {
         $("#solution").html(err);
     }
-
 });
 
 $("#loadCode").click(function () {
@@ -229,7 +234,7 @@ let currentMaxPlaceholder;
 $('#innerFunctionGroup').click(function (event) {
     let name = event.target.id.replace("labelFunSel", "");
     let newInner = [];
-    for (let i = 0; i < funcJSON[name]["params"]; i++) {
+    for (let i = 0; i < getJson(name)["params"]; i++) {
         newInner.push({name: "placeholder", init: 0});
     }
 
@@ -268,17 +273,8 @@ function innerTypeGroupChosen(event) {
             newInner = [{name: "placeholder", init: 0}];
             break;
         case "labelInnerFunction":
-            let list = $('#innerFunctionGroup');
-            list.html("");
-            if (Object.keys(funcJSON).length > 0) {
-                Object.keys(funcJSON).forEach(function (key) {
-                    let toAppend = '<label id="labelFunSel' + key + '" class="btn btn-block btn-outline-secondary"><input type="radio" name="options" id="funSel' + key + '" autocomplete="off">' + key + '</label>';
-                    list.append(toAppend);
-                });
-                $('#chooseFunctionModal').modal('show');
-            } else {
-                alert("Du hast bisher keine Funktionen.")
-            }
+            $("#innerFunctionGroup").children().removeClass("active");
+            $('#chooseFunctionModal').modal('show');
             return;
     }
     currentlyChoosing["name"] = name;

@@ -273,6 +273,7 @@ function innerTypeGroupChosen(event) {
             newInner = [{name: "placeholder", init: 0}];
             break;
         case "labelInnerFunction":
+            $("#innerFunctionGroup").children().removeClass("active");
             $('#chooseFunctionModal').modal('show');
             return;
     }

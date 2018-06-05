@@ -8,12 +8,12 @@ function calculate(name, input) {
     }
 
     // noinspection FallThroughInSwitchStatementJS
-    switch (funcJSON[name]["type"]) {
+    switch (getJson(name)["type"]) {
         case 0:
             result = calculateRec(name, input);
             break;
         case 1:
-            result = calculateAdv(funcJSON[name]["init"][0], input, name);
+            result = calculateAdv(getJson(name)["init"][0], input, name);
             break;
     }
     tempResults[name][JSON.stringify(input)] = result;
@@ -22,7 +22,7 @@ function calculate(name, input) {
 
 function calculateRec(name, input) {
     let currentRecMax = 0;
-    let func = funcJSON[name];
+    let func = getJson(name);
     let recDefIndex = func["recDefIndex"];
 
 
@@ -82,9 +82,9 @@ function calculateAdv(jsonFunc, input, origname, recDefIndex = -1, lastResult) {
     }
 
     const nextInput = doNextInputCalc(inner, input, origname, recDefIndex, lastResult);
-    if (name === validatedFunctions["add"]) {
+    if (name === "add") {
         result = nextInput[0] + nextInput[1];
-    } else if (name === validatedFunctions["mult"]) {
+    } else if (name === "mult") {
         result = nextInput[0] * nextInput[1];
     } else if (name === "s") {
         result = nextInput[0] + 1;

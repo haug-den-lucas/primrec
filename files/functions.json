@@ -378,90 +378,33 @@
     ]
   },
   "fac": {
-    "params": 1,
-    "type": 1,
-    "init": [
-      {
-        "name": "risefac",
-        "inner": [
-          {
-            "name": "param",
-            "inner": 0
-          },
-          {
-            "name": "const",
-            "inner": 1
-          }
-        ]
-      }
-    ]
-  },
-  "over2": {
     "params": "1",
     "type": 0,
     "init": [
       {
         "name": "const",
-        "inner": 0
+        "inner": 1
       }
     ],
     "recDefIndex": 0,
     "recDef": [
       {
-        "name": "add",
+        "name": "mult",
         "inner": [
           {
-            "name": "over2",
-            "init": 0
-          },
-          {
-            "name": "param",
-            "init": 0,
-            "inner": 0
-          }
-        ]
-      }
-    ]
-  },
-  "c": {
-    "params": "2",
-    "type": 1,
-    "init": [
-      {
-        "name": "add",
-        "inner": [
-          {
-            "name": "over2",
+            "name": "s",
             "init": 0,
             "inner": [
               {
-                "name": "s",
+                "name": "param",
                 "init": 0,
-                "inner": [
-                  {
-                    "name": "add",
-                    "init": 0,
-                    "inner": [
-                      {
-                        "name": "param",
-                        "init": 0,
-                        "inner": 0
-                      },
-                      {
-                        "name": "param",
-                        "init": 0,
-                        "inner": 1
-                      }
-                    ]
-                  }
-                ]
+                "inner": 0
               }
             ]
           },
           {
-            "name": "param",
-            "init": 0,
-            "inner": 0
+            "name": "fac",
+            "init": 0
           }
         ]
       }

@@ -397,14 +397,12 @@
             "inner": [
               {
                 "name": "param",
-                "init": 0,
                 "inner": 0
               }
             ]
           },
           {
             "name": "fac",
-            "init": 0
           }
         ]
       }

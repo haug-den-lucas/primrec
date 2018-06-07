@@ -235,7 +235,7 @@ $('#innerFunctionGroup').click(function (event) {
     let name = event.target.id.replace("labelFunSel", "");
     let newInner = [];
     for (let i = 0; i < getJson(name)["params"]; i++) {
-        newInner.push({name: "placeholder", init: 0});
+        newInner.push({name: "placeholder", inner: 0});
     }
 
     currentlyChoosing["name"] = name;

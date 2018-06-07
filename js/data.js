@@ -35,6 +35,10 @@ function parseJSON(json = funcJSON) {
     let list = $("#functionList");
     list.html("");
 
+    if (json === undefined || json === null) {
+        json = {};
+    }
+
     let innerFunctionGroup = $('#innerFunctionGroup');
     innerFunctionGroup.html("");
 

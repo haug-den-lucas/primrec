@@ -1,22 +1,13 @@
 let funcJSON = {};
 let validatedFunctions = {};
+
+let fm = new FunctionManager();
+fm.load(predefined, function(){
+    getDataFromLocalStorage();
+});
+let funcPreDefinedDef = fm.predefined;
+
 let funcPreDefined = ["s", "param", "const", "placeholder", "add", "mult"];
-let funcPreDefinedDef = {
-    "add": {
-        "params": 2,
-        "type": 0,
-        "init": [{"name": "param", "inner": 1}],
-        "recDefIndex": 0,
-        "recDef": [{"name": "s", "inner": [{"name": "add"}]}]
-    },
-    "mult": {
-        "params": 2,
-        "type": 0,
-        "init": [{"name": "param", "inner": 0}],
-        "recDefIndex": 0,
-        "recDef": [{"name": "add", "inner": [{"name": "mult"}, {"name": "param", "inner": 1}]}]
-    }
-};
 
 let currentSelect;
 let currentInput = [];

@@ -1,0 +1,26 @@
+{
+  "sgn": {
+    "params": "1",
+    "type": 1,
+    "init": [
+      {
+        "name": "sub",
+        "inner": [
+          {
+            "name": "const",
+            "inner": 1
+          },
+          {
+            "name": "zero",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -12,13 +12,14 @@ FunctionManager.prototype.loadByPath = function(jsonPath, onLoad) {
 
     loadJSONFromUrl(jsonPath, function (file) {
         let keys = Object.keys(file);
-        if (keys.length !== 1)
-            throw new Error("Defined more than one name");
 
-        let name = keys[0];
-        var obj = {};
-        _this.predefined[name] = file[name];
-        if (onLoad) onLoad();
+        let counter = 0;
+        keys.forEach(function (name) {
+            counter++;
+            _this.predefined[name] = file[name];
+            if (counter >= keys.length && onLoad) onLoad();
+        });
+
     });
 };
 

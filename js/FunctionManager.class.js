@@ -1,5 +1,5 @@
 function FunctionManager() {
-    this.predefined = [];
+    this.predefined = {};
 }
 
 FunctionManager.prototype.loadByName = function(name, onLoad) {
@@ -16,6 +16,7 @@ FunctionManager.prototype.loadByPath = function(jsonPath, onLoad) {
             throw new Error("Defined more than one name");
 
         let name = keys[0];
+        var obj = {};
         _this.predefined[name] = file[name];
         if (onLoad) onLoad();
     });
@@ -28,8 +29,7 @@ FunctionManager.prototype.load = function(functions, onFinish) {
         _this.loadByName(f, function(){
             counter++;
             if (counter >= functions.length && onFinish) {
-                //_this.predefined = _this.predefined.sortByKey();
-                onFinish();
+                onFinish(_this.predefined = _this.predefined.sortByKey());
             }
         });
     });

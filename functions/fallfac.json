@@ -1,0 +1,36 @@
+{
+  "fallfac": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "fallfac"
+          },
+          {
+            "name": "sub",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 1
+              },
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

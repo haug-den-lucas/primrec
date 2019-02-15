@@ -1,0 +1,26 @@
+{
+  "neg": {
+    "params": "1",
+    "type": 1,
+    "init": [
+      {
+        "name": "sub",
+        "inner": [
+          {
+            "name": "const",
+            "inner": 1
+          },
+          {
+            "name": "sgn",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

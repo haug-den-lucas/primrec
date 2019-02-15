@@ -69,6 +69,7 @@ $("#functionList").click(function (event) {
 
     currentSelect = idNow;
     currentInput = [];
+
     expectedSize = objNow["params"];
 
     $("#funName").html(idNow);

@@ -1,0 +1,54 @@
+{
+  "ifzero": {
+    "params": 3,
+    "type": 1,
+    "init": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "zero",
+                "inner": [
+                  {
+                    "name": "param",
+                    "inner": 0
+                  }
+                ]
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          },
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "zero",
+                "inner": [
+                  {
+                    "name": "zero",
+                    "inner": [
+                      {
+                        "name": "param",
+                        "inner": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "param",
+                "inner": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

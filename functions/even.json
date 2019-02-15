@@ -1,0 +1,23 @@
+{
+  "even": {
+    "params": 1,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "zero",
+        "inner": [
+          {
+            "name": "even"
+          }
+        ]
+      }
+    ]
+  }
+}

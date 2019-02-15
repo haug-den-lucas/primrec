@@ -1,0 +1,30 @@
+{
+  "ge": {
+    "params": "2",
+    "type": 1,
+    "init": [
+      {
+        "name": "sub",
+        "inner": [
+          {
+            "name": "const",
+            "inner": 1
+          },
+          {
+            "name": "leq",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "ggTm": {
+    "params": "3",
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "gT",
+                "inner": [
+                  {
+                    "name": "s",
+                    "inner": [
+                      {
+                        "name": "param",
+                        "init": 0,
+                        "inner": 0
+                      }
+                    ]
+                  },
+                  {
+                    "name": "param",
+                    "inner": 1
+                  },
+                  {
+                    "name": "param",
+                    "inner": 2
+                  }
+                ]
+              },
+              {
+                "name": "s",
+                "inner": [
+                  {
+                    "name": "param",
+                    "init": 0,
+                    "inner": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "mult",
+            "inner": [
+              {
+                "name": "sub",
+                "inner": [
+                  {
+                    "name": "const",
+                    "inner": 1
+                  },
+                  {
+                    "name": "gT",
+                    "inner": [
+                      {
+                        "name": "s",
+                        "inner": [
+                          {
+                            "name": "param",
+                            "init": 0,
+                            "inner": 0
+                          }
+                        ]
+                      },
+                      {
+                        "name": "param",
+                        "inner": 1
+                      },
+                      {
+                        "name": "param",
+                        "inner": 2
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "ggTm"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "ggT": {
+    "params": "2",
+    "type": 1,
+    "init": [
+      {
+        "name": "ggTm",
+        "inner": [
+          {
+            "name": "param",
+            "inner": 0
+          },
+          {
+            "name": "param",
+            "inner": 0
+          },
+          {
+            "name": "param",
+            "inner": 1
+          }
+        ]
+      }
+    ]
+  }
+}

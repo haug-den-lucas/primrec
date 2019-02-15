@@ -1,0 +1,26 @@
+{
+  "leq": {
+    "params": 2,
+    "type": 1,
+    "init": [
+      {
+        "name": "zero",
+        "inner": [
+          {
+            "name": "sub",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

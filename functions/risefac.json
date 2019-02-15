@@ -1,0 +1,36 @@
+{
+  "risefac": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "const",
+        "inner": 1
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "risefac"
+          },
+          {
+            "name": "add",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              },
+              {
+                "name": "param",
+                "inner": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

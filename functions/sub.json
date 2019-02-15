@@ -1,0 +1,23 @@
+{
+  "sub": {
+    "params": 2,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 1,
+    "recDef": [
+      {
+        "name": "dec",
+        "inner": [
+          {
+            "name": "sub"
+          }
+        ]
+      }
+    ]
+  }
+}

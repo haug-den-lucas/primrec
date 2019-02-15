@@ -1,0 +1,9 @@
+{
+  "add": {
+    "params": 2,
+    "type": 0,
+    "init": [{"name": "param", "inner": 1}],
+    "recDefIndex": 0,
+    "recDef": [{"name": "s", "inner": [{"name": "add"}]}]
+  }
+}

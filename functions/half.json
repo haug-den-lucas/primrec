@@ -1,0 +1,32 @@
+{
+  "half": {
+    "params": 1,
+    "type": 0,
+    "init": [
+      {
+        "name": "param",
+        "inner": 0
+      }
+    ],
+    "recDefIndex": 0,
+    "recDef": [
+      {
+        "name": "add",
+        "inner": [
+          {
+            "name": "half"
+          },
+          {
+            "name": "odd",
+            "inner": [
+              {
+                "name": "param",
+                "inner": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

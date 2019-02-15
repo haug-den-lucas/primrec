@@ -1,11 +1,11 @@
 let funcJSON = {};
 let validatedFunctions = {};
-
+let funcPreDefinedDef = null;
 let fm = new FunctionManager();
-fm.load(predefined, function(){
+fm.load(predefined, function(predefined){
+    funcPreDefinedDef = predefined;
     getDataFromLocalStorage();
 });
-let funcPreDefinedDef = fm.predefined;
 
 let funcPreDefined = ["s", "param", "const", "placeholder", "add", "mult"];
 

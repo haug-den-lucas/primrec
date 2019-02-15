@@ -1,4 +1,4 @@
-function loadJSON(url, onSuccess, onError) {
+function loadJSONFromUrl(url, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
@@ -19,8 +19,7 @@ function getBaseUrl() {
     return window.location.protocol + "//" + window.location.host + "/" + window.location.pathname.split('/')[1]
 }
 
-Object.prototype.sortByKey = function () {
-    let old = this;
+function sortByKey (old) {
     let keys = Object.keys(old).sort();
     let result = {};
     keys.forEach(function (key) {
@@ -29,7 +28,7 @@ Object.prototype.sortByKey = function () {
     return result;
 };
 
-Array.prototype.merge = function (arr) {
+Array.prototype.appendList = function (arr) {
     var _this = this;
     arr.forEach(function (obj) {
        _this.push(obj);

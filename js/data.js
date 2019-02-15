@@ -1,6 +1,6 @@
 let funcJSON = {};
 let validatedFunctions = {};
-let funcPreDefined = ["s", "param", "const", "placeholder"].merge(predefined);
+let funcPreDefined = ["s", "param", "const", "placeholder"].appendList(predefined);
 
 let fm = new FunctionManager();
 let funcPreDefinedDef = null;

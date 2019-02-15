@@ -10,7 +10,7 @@ FunctionManager.prototype.loadByName = function(name, onLoad) {
 FunctionManager.prototype.loadByPath = function(jsonPath, onLoad) {
     let _this = this;
 
-    loadJSON(jsonPath, function (file) {
+    loadJSONFromUrl(jsonPath, function (file) {
         let keys = Object.keys(file);
         if (keys.length !== 1)
             throw new Error("Defined more than one name");
@@ -29,7 +29,7 @@ FunctionManager.prototype.load = function(functions, onFinish) {
         _this.loadByName(f, function(){
             counter++;
             if (counter >= functions.length && onFinish) {
-                onFinish(_this.predefined = _this.predefined.sortByKey());
+                onFinish(sortByKey(_this.predefined));
             }
         });
     });

@@ -28,3 +28,11 @@ Object.prototype.sortByKey = function () {
     });
     return result;
 };
+
+Array.prototype.merge = function (arr) {
+    var _this = this;
+    arr.forEach(function (obj) {
+       _this.push(obj);
+    });
+    return _this;
+};

@@ -1,13 +1,14 @@
 let funcJSON = {};
 let validatedFunctions = {};
-let funcPreDefinedDef = null;
+let funcPreDefined = ["s", "param", "const", "placeholder"].merge(predefined);
+
 let fm = new FunctionManager();
+let funcPreDefinedDef = null;
 fm.load(predefined, function(predefined){
     funcPreDefinedDef = predefined;
     getDataFromLocalStorage();
 });
 
-let funcPreDefined = ["s", "param", "const", "placeholder", "add", "mult"];
 
 let currentSelect;
 let currentInput = [];

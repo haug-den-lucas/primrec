@@ -1,0 +1,49 @@
+{
+  "gT": {
+    "params": "3",
+    "type": 1,
+    "init": [
+      {
+        "name": "mult",
+        "inner": [
+          {
+            "name": "zero",
+            "inner": [
+              {
+                "name": "mod",
+                "inner": [
+                  {
+                    "name": "param",
+                    "inner": 1
+                  },
+                  {
+                    "name": "param",
+                    "inner": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "zero",
+            "inner": [
+              {
+                "name": "mod",
+                "inner": [
+                  {
+                    "name": "param",
+                    "inner": 2
+                  },
+                  {
+                    "name": "param",
+                    "inner": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

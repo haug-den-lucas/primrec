@@ -1,87 +1,108 @@
-function calculate(name, input) {
-    let result;
-    if (tempResults[name] === undefined) {
+/**
+ * Calculation module for Primitive Recursive Simulator.
+ */
+
+import { getFunctionDefinition } from './data.js';
+
+let tempResults = {};
+let recMaxTemp = {};
+
+export function clearCalcCache() {
+    tempResults = {};
+    recMaxTemp = {};
+}
+
+export function calculate(name, input) {
+    if (!tempResults[name]) {
         tempResults[name] = {};
     }
-    if (tempResults[name][JSON.stringify(input)] !== undefined) {
-        return tempResults[name][JSON.stringify(input)];
+    const inputKey = JSON.stringify(input);
+    if (tempResults[name][inputKey] !== undefined) {
+        return tempResults[name][inputKey];
     }
 
-    // noinspection FallThroughInSwitchStatementJS
-    switch (getJson(name)["type"]) {
+    const func = getFunctionDefinition(name);
+    if (!func) {
+        throw new Error(`Function '${name}' is not defined`);
+    }
+
+    let result;
+    switch (func.type) {
         case 0:
             result = calculateRec(name, input);
             break;
         case 1:
-            result = calculateAdv(getJson(name)["init"][0], input, name);
+            result = calculateAdv(func.init[0], input, name);
             break;
+        default:
+            throw new Error(`Unknown function type: ${func.type}`);
     }
-    tempResults[name][JSON.stringify(input)] = result;
+
+    tempResults[name][inputKey] = result;
     return result;
 }
 
 function calculateRec(name, input) {
     let currentRecMax = 0;
-    let func = getJson(name);
-    let recDefIndex = func["recDefIndex"];
+    const func = getFunctionDefinition(name);
+    const recDefIndex = func.recDefIndex;
 
-
-    if (recMaxTemp[name] === undefined) {
+    if (!recMaxTemp[name]) {
         recMaxTemp[name] = {};
     }
-    let inputToChange = input.slice(0);
+
+    let inputToChange = [...input];
     inputToChange.splice(recDefIndex, 1);
-    let splicedInputString = JSON.stringify(inputToChange);
+    const splicedInputString = JSON.stringify(inputToChange);
+
     if (recMaxTemp[name][splicedInputString] !== undefined && recMaxTemp[name][splicedInputString] <= input[recDefIndex]) {
         currentRecMax = recMaxTemp[name][splicedInputString];
     }
 
-
     let lastResult = 0;
+    inputToChange = [...input];
 
-    inputToChange = input.slice(0);
     if (currentRecMax === 0) {
         inputToChange[recDefIndex] = 0;
-        lastResult = calculateAdv(func["init"][0], inputToChange, name);
+        lastResult = calculateAdv(func.init[0], inputToChange, name);
     } else {
-        inputToChange = input.slice(0);
         inputToChange[recDefIndex] = currentRecMax;
         lastResult = tempResults[name][JSON.stringify(inputToChange)];
     }
 
-    inputToChange = input.slice(0);
     for (let i = currentRecMax + 1; i <= input[recDefIndex]; i++) {
         inputToChange[recDefIndex] = i;
-        lastResult = calculateAdv(func["recDef"][0], inputToChange, name, recDefIndex, lastResult);
+        lastResult = calculateAdv(func.recDef[0], inputToChange, name, recDefIndex, lastResult);
     }
 
     recMaxTemp[name][splicedInputString] = input[recDefIndex];
     return lastResult;
 }
 
-function calculateAdv(jsonFunc, input, origname, recDefIndex = -1, lastResult) {
-    let name = jsonFunc["name"];
-    let inner = jsonFunc["inner"];
+function calculateAdv(jsonFunc, input, origName, recDefIndex = -1, lastResult = null) {
+    const name = jsonFunc.name;
+    const inner = jsonFunc.inner;
 
     let result;
 
     if (name === "param") {
         result = input[inner];
-        if (inner === recDefIndex)
+        if (inner === recDefIndex) {
             result--;
+        }
         return result;
     } else if (name === "const") {
-        result = inner;
-        return result;
-    } else if (name === origname) {
+        return inner;
+    } else if (name === origName) {
         if (recDefIndex > -1) {
             return lastResult;
         } else {
-            throw "Unerlaubte Rekursion";
+            throw new Error("Illegal recursion");
         }
     }
 
-    const nextInput = doNextInputCalc(inner, input, origname, recDefIndex, lastResult);
+    const nextInput = doNextInputCalc(inner, input, origName, recDefIndex, lastResult);
+
     if (name === "add") {
         result = nextInput[0] + nextInput[1];
     } else if (name === "mult") {
@@ -91,22 +112,22 @@ function calculateAdv(jsonFunc, input, origname, recDefIndex = -1, lastResult) {
     } else {
         result = calculate(name, nextInput);
     }
+
     return result;
 }
 
-function doNextInputCalc(inner, input, origname, recDefIndex, lastResult) {
-    let nextInput = [];
+function doNextInputCalc(inner, input, origName, recDefIndex, lastResult) {
+    const nextInput = [];
     for (let i = 0; i < inner.length; i++) {
-        if (inner[i]["name"] === origname) {
+        if (inner[i].name === origName) {
             if (recDefIndex > -1) {
                 nextInput[i] = lastResult;
             } else {
-                throw "Unerlaubte Rekursion";
+                throw new Error("Illegal recursion");
             }
         } else {
-            nextInput[i] = calculateAdv(inner[i], input, origname, recDefIndex, lastResult);
+            nextInput[i] = calculateAdv(inner[i], input, origName, recDefIndex, lastResult);
         }
     }
-
     return nextInput;
 }

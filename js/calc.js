@@ -161,11 +161,11 @@ function renderConcreteRhs(node, input, origName, recDefIndex, isInitStep, child
 
     const innerStr = innerParts.map(p => p.fullWithHighlight).join(", ");
 
-    if (name === "s" || name === "add" || name === "mult") {
+    if (name === "s") {
         return { fullWithHighlight: `${name}(${innerStr})` };
     }
 
-    // Custom or predefined sub-function call
+    // Custom or predefined sub-function call (like add or mult)
     return { fullWithHighlight: `<u>${name}(${innerStr})</u>` };
 }
 
@@ -224,27 +224,21 @@ function buildExpressionTree(node, input, origName, recDefIndex, isInitStep) {
 
     if (name === "s") {
         result = childArgs[0] + 1;
-    } else if (name === "add") {
-        result = childArgs[0] + childArgs[1];
-    } else if (name === "mult") {
-        result = childArgs[0] * childArgs[1];
+        extraChildren = evaluatedChildren.filter(c => c.type !== 'leaf');
     } else {
+        // Defined function or predefined functions like 'add' / 'mult'
         const subTree = calculateWithTree(name, childArgs);
         result = subTree.result;
-        extraChildren = [subTree];
-    }
 
-    // Filter out simple parameter/constant leaves if parent is standard wrapper expression
-    let finalChildren = [...evaluatedChildren, ...extraChildren];
-    if (name === "s" || name === "add" || name === "mult") {
-        // Only keep non-leaf or recursive/sub-function children so tree stays clean
-        finalChildren = finalChildren.filter(c => c.type !== 'leaf');
+        // Collect children from inner parameter evaluations (e.g. mult(1, 3)) + the subTree (e.g. add(3, 3))
+        const nonLeafInnerChildren = evaluatedChildren.filter(c => c.type !== 'leaf');
+        extraChildren = [...nonLeafInnerChildren, subTree];
     }
 
     return {
         result,
         type: 'function',
-        children: finalChildren
+        children: extraChildren
     };
 }
 

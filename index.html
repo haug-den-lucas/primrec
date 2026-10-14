@@ -1,314 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <title>Primitive Recursive</title>
+    <title>Primitive Recursive Simulator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
-          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-
-    <!--<link href="bootstrap-theme.css" rel="stylesheet">-->
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <link href="css/own.css" rel="stylesheet">
 </head>
-<body class="">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="index.html">Primitive Recursive Simulator</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
-            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
-        <ul class="navbar-nav nav">
-            <li class="nav-item active">
-                <a class="nav-link" href="https://github.com/Ich5003/primrec/">GitHub</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+<body>
+<div id="app" v-cloak>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="index.html">Primitive Recursive Simulator</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Ich5003/primrec/" target="_blank" rel="noopener">GitHub</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<section id="func">
-    <div class="container">
-        <div id="accordion" role="tablist" aria-multiselectable="true">
-            <div class="card bg-light">
-                <div class="card-header " role="tab">
-                    <h3 id="funName" class="text-center">Bitte unten Funktion anklicken</h3>
+    <!-- Main Content Section -->
+    <section id="func" class="py-4">
+        <div class="container">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h3 id="funName" class="text-center mb-0 text-primary">
+                        {{ selectedFuncName || "Please select a function below" }}
+                    </h3>
                 </div>
 
-                <div class="card-block">
+                <div class="card-body" v-if="selectedFuncName && currentFuncObj">
+                    <div class="row mb-3">
+                        <div class="col-md-5">
+                            <h5 class="text-muted">Definition:</h5>
+                            <div class="p-2 bg-light rounded font-monospace">
+                                <div v-for="(line, idx) in definitionLines" :key="idx" class="fs-6 text-dark">
+                                    {{ line }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <h5 class="text-muted">Execution:</h5>
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <span class="fw-bold fs-5">{{ selectedFuncName }}(</span>
+                                <template v-for="(paramVal, idx) in inputParams" :key="idx">
+                                    <button type="button" class="btn btn-sm"
+                                            :class="paramVal !== null ? 'btn-success' : 'btn-outline-secondary'"
+                                            @click="setParamValue(idx)">
+                                        {{ paramVal !== null ? paramVal : String.fromCharCode(97 + idx) }}
+                                    </button>
+                                    <span v-if="idx < inputParams.length - 1" class="fw-bold fs-5">,</span>
+                                </template>
+                                <span class="fw-bold fs-5">) =</span>
+
+                                <span v-if="calculationResult !== null" class="badge bg-success fs-5">
+                                    {{ calculationResult }}
+                                </span>
+                                <span v-else-if="calculationError" class="badge bg-danger fs-6">
+                                    {{ calculationError }}
+                                </span>
+                                <span v-else class="text-muted fs-5">?</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
-                        <div class="col-md-4">
-                            <h4 id="funDef"></h4>
-                        </div>
-                        <div class="col-md-8">
-                            <h4 id="funInsert"></h4>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button id="createFunction" type="button" data-toggle="modal"
-                                    data-target="#addFunctionModal"
-                                    class="btn btn-outline-success">Funktion erstellen
+                        <div class="col-md-5 d-flex gap-2">
+                            <button type="button" class="btn btn-outline-success" @click="openCreateModal">
+                                Create Function
                             </button>
-                            <button id="delete" style="display: none;" type="button" class="btn btn-outline-danger">
-                                Löschen
+                            <button v-if="!isPredefinedSelected" type="button" class="btn btn-outline-danger" @click="deleteSelectedFunction">
+                                Delete
                             </button>
                         </div>
-                        <div class="col-md-8">
-                            <button id="doCalc" style="display: none;" type="button" class="btn btn-primary">Berechnen
+                        <div class="col-md-7">
+                            <button type="button" class="btn btn-primary" @click="runCalculation">
+                                Calculate
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<section id="funcChooser">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <label for="functionList">Funktionen:</label>
-                <div id="functionList" class="btn-group btn-group-vertical btn-block btn-group-toggle"
-                     data-toggle="buttons"></div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="jsonArea">Dein Code (bitte speichern):</label>
-                    <textarea class="form-control" id="jsonArea" rows="10"></textarea>
+                <div class="card-body text-center py-5" v-else>
+                    <p class="text-muted mb-3">No function selected. Choose a predefined or saved function, or create a new one.</p>
+                    <button type="button" class="btn btn-success" @click="openCreateModal">
+                        Create Function
+                    </button>
                 </div>
-                <button id="loadCode" type="button" class="btn btn-outline-success float-right">Code laden</button>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
+    <!-- Function Selector and Code Load/Save Section -->
+    <section id="funcChooser" class="py-2">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-7">
+                    <label class="form-label fw-bold">Functions:</label>
+                    <div class="d-grid gap-2">
+                        <div class="text-muted small">Predefined Functions:</div>
+                        <div class="btn-group-vertical w-100" role="group">
+                            <button v-for="key in allPredefinedKeys" :key="key" type="button"
+                                    class="btn text-start"
+                                    :class="selectedFuncName === key ? 'btn-info text-white' : 'btn-outline-info'"
+                                    @click="selectFunction(key)">
+                                {{ key }}
+                            </button>
+                        </div>
 
-<!-- Modal -->
-<div class="modal fade" id="addFunctionModal" tabindex="-1" role="dialog" aria-labelledby="addFunctionModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addFunctionModalLabel">Funktion hinzufügen</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group row">
-                        <label for="newName" class="col-sm-3 col-form-label">Name</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="newName" placeholder="Name der Funktion">
+                        <div class="text-muted small mt-2" v-if="userFuncKeys.length > 0">Custom Functions:</div>
+                        <div class="btn-group-vertical w-100" role="group" v-if="userFuncKeys.length > 0">
+                            <button v-for="key in userFuncKeys" :key="key" type="button"
+                                    class="btn text-start"
+                                    :class="selectedFuncName === key ? 'btn-success' : 'btn-outline-success'"
+                                    @click="selectFunction(key)">
+                                {{ key }}
+                            </button>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="newParams" class="col-sm-3 col-form-label">Parameter</label>
-                        <div class="col-sm-9">
-                            <input type="number" class="form-control" id="newParams" placeholder="Anzahl der Parameter">
-                        </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group mb-2">
+                        <label for="jsonArea" class="form-label fw-bold">Your Code (JSON format):</label>
+                        <textarea class="form-control font-monospace" id="jsonArea" rows="10" v-model="jsonCodeArea"></textarea>
                     </div>
-                    <div class="form-group col-sm-12">
-                        <label for="typeGroup">Wie ist deine Funktion definiert?</label>
-                        <div class="row">
-                            <div id="typeGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
-                                 data-toggle="buttons">
-                                <label id="labelNewType0" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="newType0" autocomplete="off">
-                                    Nur zusammengesetzt aus anderen Funktionen
-                                </label>
-                                <label id="labelNewType1" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="newType1" autocomplete="off">
-                                    Rekursiv definiert
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="nextStep1" type="button" class="btn btn-primary">Weiter</button>
+                    <button type="button" class="btn btn-outline-success float-end" @click="loadCodeFromJson">
+                        Load Code
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Refactored Vue Modal Components -->
+    <add-function-modal
+        :wizard-step="wizardStep"
+        v-model:new-func-name="newFuncName"
+        v-model:new-param-count="newParamCount"
+        v-model:new-func-type="newFuncType"
+        :new-rec-index="newRecIndex"
+        :new-init="newInit"
+        :new-rec-def="newRecDef"
+        :get-function-signature="getFunctionSignature"
+        @wizard-next-1="wizardNextStep1"
+        @wizard-next-2="wizardNextStep2"
+        @select-rec-param="selectRecParam"
+        @open-choice="openChoiceModal"
+        @finish="finishCreateFunction">
+    </add-function-modal>
+
+    <choose-type-modal
+        :new-func-type="newFuncType"
+        :wizard-step="wizardStep"
+        :new-func-name="newFuncName"
+        @choose-type="chooseInnerType">
+    </choose-type-modal>
+
+    <choose-function-modal
+        :all-predefined-keys="allPredefinedKeys"
+        :user-func-keys="userFuncKeys"
+        @select-inner-function="selectInnerFunction">
+    </choose-function-modal>
 </div>
 
-<div class="modal fade" id="recursiveFunctionModal" tabindex="-1" role="dialog"
-     aria-labelledby="recursiveFunctionModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="recursiveFunctionModalLabel">Rekursionsanfang</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="h-divider form-group col-sm-12">
-                        <label for="recParam">Wähle den Parameter aus, über welchen die Rekursion definiert sein
-                            soll:</label>
-                        <div class="row">
-                            <h5>
-                                <span id="recParam" class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
-                                </span>
-                            </h5>
-
-                        </div>
-                    </div>
-                    <div id="createFunDiv" class="form-group col-sm-12">
-                        <label for="recParam">Bitte definiere den Rekursionsstart</label>
-                        <div class="row">
-                            <h5>
-                                <span id="createFunInit" class="btn-group btn-block btn-group-toggle"
-                                      style="display: none;" data-toggle="buttons">
-
-                                </span>
-                            </h5>
-
-                        </div>
-                    </div>
-                </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="nextStep2" type="button" class="btn btn-primary">Weiter</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="finalFunctionModal" tabindex="-1" role="dialog" aria-labelledby="finalFunctionModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="finalFunctionModalLabel">Definition</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div id="createFinalFunDiv" class="form-group col-sm-12">
-                        <label for="recParam">Bitte definiere die Funktion</label>
-                        <div class="row">
-                            <h5>
-                                <span id="createFunRec" class="btn-group btn-block btn-group-toggle"
-                                      data-toggle="buttons">
-
-                                </span>
-                            </h5>
-
-                        </div>
-                    </div>
-                </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="finishCreate" type="button" class="btn btn-primary">Fertig</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="chooseTypeModal" tabindex="-1" role="dialog" aria-labelledby="chooseFunctionModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chooseTypeModalTitle">Typ wählen</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group col-sm-12">
-                        <label for="typeGroup">Was soll hier eingefügt werden?</label>
-                        <div class="row">
-                            <div id="innerTypeGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
-                                 data-toggle="buttons">
-                                <label id="labelConstant" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="constant" autocomplete="off">
-                                    Eine Konstante
-                                </label>
-                                <label id="labelParam" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="param" autocomplete="off">
-                                    Ein Parameter
-                                </label>
-                                <label id="labelSucc" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="succ" autocomplete="off">
-                                    Die Successorfunktion (addiert 1)
-                                </label>
-                                <label id="labelInnerFunction" class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="innerFunction" autocomplete="off">
-                                    Eine Funktion
-                                </label>
-                                <label id="labelRecDef" style="display: none;"
-                                       class="btn btn-block btn-outline-secondary">
-                                    <input type="radio" name="options" id="recDef" autocomplete="off">
-                                    Rekursive Definition dieser Funktion
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="chooseFunctionModal" tabindex="-1" role="dialog" aria-labelledby="chooseFunctionModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chooseFunctionModalLabel">Funktion wählen</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group col-sm-12">
-                        <label for="typeGroup">Was soll hier eingefügt werden?</label>
-                        <div class="row">
-                            <div id="innerFunctionGroup" class="btn-group btn-group-vertical btn-block btn-group-toggle"
-                                 data-toggle="buttons">
-
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
-        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
-        crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
-        integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
-        crossorigin="anonymous"></script>
-<script src="js/data.js"></script>
-<script src="js/calc.js"></script>
-<script src="js/ui.js"></script>
-<script>getDataFromLocalStorage();</script>
-
+<!-- Vue 3 & Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.prod.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>

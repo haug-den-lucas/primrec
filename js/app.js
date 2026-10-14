@@ -125,7 +125,7 @@ createApp({
 
             const func = getFunctionDefinition(name);
             if (func) {
-                inputParams.value = new Array(func.params).fill(0);
+                inputParams.value = new Array(func.params);
             }
         };
 

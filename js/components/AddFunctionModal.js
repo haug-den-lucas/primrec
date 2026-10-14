@@ -29,7 +29,7 @@ export default {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addFunctionModalLabel">
-                        Create Function - Step {{ wizardStep }} of {{ newFuncType === 0 ? 3 : 2 }}
+                        Create Function - Step {{ newFuncType === 1 && wizardStep === 3 ? 2 : wizardStep }} of {{ newFuncType === 0 ? 3 : 2 }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>

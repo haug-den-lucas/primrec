@@ -74,30 +74,50 @@ function buildPrimitiveRecursionTree(name, func, input) {
         const symbolicLine = defLines[0] || `${name}(...)`;
         const exprTree = buildExpressionTree(func.init[0], input, name, recDefIndex, true);
 
-        const subExprFormatted = renderConcreteRhs(func.init[0], input, name, recDefIndex, true, exprTree);
+        const subExprFormatted = renderConcreteRhs(func.init[0], input, name, recDefIndex, true);
         const concreteLine = `${name}(${input.join(', ')}) = ${subExprFormatted.fullWithHighlight} = ${exprTree.result}`;
+
+        if (exprTree.node) {
+            return {
+                symbolicLine,
+                concreteLine,
+                result: exprTree.result,
+                type: 'function',
+                children: [exprTree.node]
+            };
+        }
 
         return {
             symbolicLine,
             concreteLine,
             result: exprTree.result,
             type: 'function',
-            children: exprTree.children
+            children: []
         };
     } else {
         // Step case: line 1 = defLines[1]
         const symbolicLine = defLines[1] || `${name}(...)`;
         const exprTree = buildExpressionTree(func.recDef[0], input, name, recDefIndex, false);
 
-        const subExprFormatted = renderConcreteRhs(func.recDef[0], input, name, recDefIndex, false, exprTree);
+        const subExprFormatted = renderConcreteRhs(func.recDef[0], input, name, recDefIndex, false);
         const concreteLine = `${name}(${input.join(', ')}) = ${subExprFormatted.fullWithHighlight} = ${exprTree.result}`;
+
+        if (exprTree.node) {
+            return {
+                symbolicLine,
+                concreteLine,
+                result: exprTree.result,
+                type: 'function',
+                children: [exprTree.node]
+            };
+        }
 
         return {
             symbolicLine,
             concreteLine,
             result: exprTree.result,
             type: 'function',
-            children: exprTree.children
+            children: []
         };
     }
 }
@@ -110,22 +130,32 @@ function buildCompositionTree(name, func, input) {
     const symbolicLine = defLines[0] || `${name}(...) = ...`;
 
     const rootExprTree = buildExpressionTree(func.init[0], input, name, -1, false);
-    const subExprFormatted = renderConcreteRhs(func.init[0], input, name, -1, false, rootExprTree);
+    const subExprFormatted = renderConcreteRhs(func.init[0], input, name, -1, false);
     const concreteLine = `${name}(${input.join(', ')}) = ${subExprFormatted.fullWithHighlight} = ${rootExprTree.result}`;
+
+    if (rootExprTree.node) {
+        return {
+            symbolicLine,
+            concreteLine,
+            result: rootExprTree.result,
+            type: 'function',
+            children: [rootExprTree.node]
+        };
+    }
 
     return {
         symbolicLine,
         concreteLine,
         result: rootExprTree.result,
         type: 'function',
-        children: rootExprTree.children
+        children: []
     };
 }
 
 /**
- * Helper to render concrete RHS expression with <u>...</u> around the inner part evaluated by children.
+ * Helper to render concrete RHS expression with <u>...</u> around the inner sub-call part.
  */
-function renderConcreteRhs(node, input, origName, recDefIndex, isInitStep, childExprTree) {
+function renderConcreteRhs(node, input, origName, recDefIndex, isInitStep) {
     if (!node) return { fullWithHighlight: "" };
 
     const name = node.name;
@@ -152,25 +182,20 @@ function renderConcreteRhs(node, input, origName, recDefIndex, isInitStep, child
         return { fullWithHighlight: `<u>${callStr}</u>` };
     }
 
-    // Inner node: array of children
     const childNodes = Array.isArray(node.inner) ? node.inner : [];
-    const innerParts = childNodes.map((cNode, i) => {
-        const subTree = (childExprTree && childExprTree.children) ? childExprTree.children[i] : null;
-        return renderConcreteRhs(cNode, input, origName, recDefIndex, isInitStep, subTree);
-    });
-
+    const innerParts = childNodes.map(cNode => renderConcreteRhs(cNode, input, origName, recDefIndex, isInitStep));
     const innerStr = innerParts.map(p => p.fullWithHighlight).join(", ");
 
     if (name === "s") {
         return { fullWithHighlight: `${name}(${innerStr})` };
     }
 
-    // Custom or predefined sub-function call (like add or mult)
     return { fullWithHighlight: `<u>${name}(${innerStr})</u>` };
 }
 
 /**
  * Recursively builds expression evaluation tree node.
+ * Returns { result: number, node: TreeObject|null }
  */
 function buildExpressionTree(node, input, origName, recDefIndex, isInitStep) {
     const name = node.name;
@@ -183,32 +208,19 @@ function buildExpressionTree(node, input, origName, recDefIndex, isInitStep) {
         } else {
             val = input[paramIdx];
         }
-        const paramName = String.fromCharCode(97 + paramIdx);
-        return {
-            symbolicLine: `param ${paramName}`,
-            concreteLine: `${paramName} = ${val}`,
-            result: val,
-            type: 'leaf',
-            children: []
-        };
+        return { result: val, node: null };
     }
 
     if (name === "const") {
-        const val = node.inner;
-        return {
-            symbolicLine: `const ${val}`,
-            concreteLine: `${val}`,
-            result: val,
-            type: 'leaf',
-            children: []
-        };
+        return { result: node.inner, node: null };
     }
 
     if (name === origName) {
         if (recDefIndex > -1) {
             let prevInput = [...input];
             prevInput[recDefIndex] = input[recDefIndex] - 1;
-            return calculateWithTree(origName, prevInput);
+            const tree = calculateWithTree(origName, prevInput);
+            return { result: tree.result, node: tree };
         }
         throw new Error("Illegal recursion");
     }
@@ -218,27 +230,29 @@ function buildExpressionTree(node, input, origName, recDefIndex, isInitStep) {
         buildExpressionTree(child, input, origName, recDefIndex, isInitStep)
     );
     const childArgs = evaluatedChildren.map(c => c.result);
+    const argChildNodes = evaluatedChildren.map(c => c.node).filter(Boolean);
 
     let result;
-    let extraChildren = [];
+    let nodeObject = null;
 
     if (name === "s") {
         result = childArgs[0] + 1;
-        extraChildren = evaluatedChildren.filter(c => c.type !== 'leaf');
+        if (argChildNodes.length > 0) {
+            nodeObject = argChildNodes[0];
+        }
     } else {
-        // Defined function or predefined functions like 'add' / 'mult'
+        // Predefined function ('add', 'mult') or custom defined function
         const subTree = calculateWithTree(name, childArgs);
         result = subTree.result;
 
-        // Collect children from inner parameter evaluations (e.g. mult(1, 3)) + the subTree (e.g. add(3, 3))
-        const nonLeafInnerChildren = evaluatedChildren.filter(c => c.type !== 'leaf');
-        extraChildren = [...nonLeafInnerChildren, subTree];
+        // Attach argument child nodes (e.g. mult(0, 1)) as children of subTree (e.g. add(0, 1))
+        subTree.children = [...argChildNodes, ...subTree.children];
+        nodeObject = subTree;
     }
 
     return {
         result,
-        type: 'function',
-        children: extraChildren
+        node: nodeObject
     };
 }
 

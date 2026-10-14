@@ -77,17 +77,22 @@ export default {
 
                 <!-- Step 2 (Recursive only): Select Recursion Parameter -->
                 <div class="modal-body" v-if="wizardStep === 2">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Select the recursion parameter:</label>
-                        <p class="text-muted small mb-2">Choose which parameter will be decremented in recursive calls (h(..., 0, ...) vs h(..., n+1, ...)).</p>
-                        <div class="btn-group w-100" role="group">
-                            <button v-for="i in newParamCount" :key="i - 1" type="button"
-                                    class="btn py-2 fw-bold"
-                                    :class="newRecIndex === (i - 1) ? 'btn-primary' : 'btn-outline-primary'"
-                                    @click="$emit('select-rec-param', i - 1)">
-                                Parameter {{ String.fromCharCode(96 + i) }}
-                            </button>
+                    <div class="mb-3 text-center">
+                        <label class="form-label fw-bold mb-2">Click on the parameter you want to recurse on:</label>
+                        <div class="p-4 bg-light rounded font-monospace fs-4 border d-flex align-items-center justify-content-center gap-1">
+                            <span class="fw-bold text-primary">{{ newFuncName || 'func' }}(</span>
+                            <template v-for="i in newParamCount" :key="i - 1">
+                                <button type="button"
+                                        class="btn btn-lg mx-1 fw-bold"
+                                        :class="newRecIndex === (i - 1) ? 'btn-primary shadow-sm' : 'btn-outline-primary'"
+                                        @click="$emit('select-rec-param', i - 1)">
+                                    {{ String.fromCharCode(96 + i) }}
+                                </button>
+                                <span v-if="i < newParamCount" class="fw-bold text-muted">,</span>
+                            </template>
+                            <span class="fw-bold text-primary">)</span>
                         </div>
+                        <p class="text-muted small mt-2">Selected parameter will be used for step-down recursion (e.g. 0 base case and n+1 step case).</p>
                     </div>
                 </div>
 

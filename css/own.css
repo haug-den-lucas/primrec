@@ -63,3 +63,87 @@ input[type="number"] {
 .tree-node-action:hover {
     opacity: 0.8;
 }
+
+/* Calculation Tree CSS connector lines & tree styling */
+.calc-tree-outer-container {
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 1rem 0.5rem;
+    white-space: nowrap;
+}
+
+.calc-tree-node-wrapper {
+    display: inline-flex;
+    vertical-align: top;
+}
+
+.calc-tree-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border-radius: 8px;
+    z-index: 2;
+}
+
+.calc-tree-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+/* Connectors using CSS ::before and ::after pseudo-elements */
+.calc-tree-children-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    position: relative;
+    padding-top: 20px;
+}
+
+/* Top vertical line coming out of parent */
+.calc-tree-children-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 2px solid #adb5bd;
+    width: 0;
+    height: 20px;
+}
+
+/* Connector item container */
+.calc-tree-child-item {
+    position: relative;
+    padding-top: 20px;
+}
+
+/* Lines connecting children to horizontal line */
+.calc-tree-child-item::before, .calc-tree-child-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    border-top: 2px solid #adb5bd;
+    width: 50%;
+    height: 20px;
+}
+
+.calc-tree-child-item::after {
+    right: auto;
+    left: 50%;
+    border-left: 2px solid #adb5bd;
+}
+
+/* Remove horizontal connector left/right overhangs for first/last children */
+.calc-tree-child-item:only-child::after, .calc-tree-child-item:only-child::before {
+    display: none;
+}
+
+.calc-tree-child-item:only-child {
+    padding-top: 0;
+}
+
+.calc-tree-child-item:first-child::before {
+    border: none;
+}
+
+.calc-tree-child-item:last-child::after {
+    border: none;
+}

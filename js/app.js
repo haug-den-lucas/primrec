@@ -11,9 +11,10 @@ import {
     saveFunctionsToStorage
 } from './data.js';
 
-import { calculate } from './calc.js';
+import { calculate, calculateWithTree } from './calc.js';
 import { renderDefinitionLines } from './formatter.js';
 import TreeNode from './components/TreeNode.js';
+import CalcTreeNode from './components/CalcTree.js';
 import AddFunctionModal from './components/AddFunctionModal.js';
 import ChooseTypeModal from './components/ChooseTypeModal.js';
 import ChooseFunctionModal from './components/ChooseFunctionModal.js';
@@ -23,6 +24,7 @@ const { createApp, ref, computed, onMounted } = Vue;
 createApp({
     components: {
         TreeNode,
+        CalcTreeNode,
         AddFunctionModal,
         ChooseTypeModal,
         ChooseFunctionModal
@@ -34,6 +36,7 @@ createApp({
         const inputParams = ref([]);
         const calculationResult = ref(null);
         const calculationError = ref(null);
+        const calculationTree = ref(null);
         const jsonCodeArea = ref("");
 
         // Creation Wizard State
@@ -120,6 +123,7 @@ createApp({
             selectedFuncName.value = name;
             calculationResult.value = null;
             calculationError.value = null;
+            calculationTree.value = null;
 
             const func = getFunctionDefinition(name);
             if (func) {
@@ -152,6 +156,25 @@ createApp({
             } catch (err) {
                 calculationError.value = err.message;
                 calculationResult.value = null;
+            }
+        };
+
+        const showCalculationTree = () => {
+            if (!selectedFuncName.value) return;
+            if (inputParams.value.some(v => v === null || v === "" || isNaN(v) || v < 0)) {
+                alert("Please enter valid non-negative integer values for all parameters.");
+                return;
+            }
+
+            try {
+                calculationError.value = null;
+                const tree = calculateWithTree(selectedFuncName.value, inputParams.value);
+                calculationResult.value = tree.result;
+                calculationTree.value = tree;
+            } catch (err) {
+                calculationError.value = err.message;
+                calculationResult.value = null;
+                calculationTree.value = null;
             }
         };
 
@@ -331,6 +354,8 @@ createApp({
             selectFunction,
             deleteSelectedFunction,
             runCalculation,
+            showCalculationTree,
+            calculationTree,
             getFunctionSignature,
 
             openCreateModal,

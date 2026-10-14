@@ -4,7 +4,8 @@ export default {
         node: { type: Object, required: true },
         funcName: { type: String, required: true },
         paramCount: { type: Number, required: true },
-        recDefIndex: { type: Number, default: -1 }
+        recDefIndex: { type: Number, default: -1 },
+        isInit: { type: Boolean, default: false }
     },
     emits: ['open-choice'],
     template: `
@@ -21,7 +22,7 @@ export default {
             </template>
             <template v-else-if="node.name === 'param'">
                 <span class="badge bg-info text-dark ms-1 me-1 fs-6 tree-node-action" @click="$emit('open-choice', node)" title="Click to change parameter or reset">
-                    <template v-if="node.inner === recDefIndex">0</template>
+                    <template v-if="isInit && node.inner === recDefIndex">0</template>
                     <template v-else>{{ String.fromCharCode(97 + node.inner) }}</template>
                     <span class="ms-1 small">&times;</span>
                 </span>
@@ -36,7 +37,7 @@ export default {
                 <span class="fw-bold ms-1 tree-node-action text-primary" @click="$emit('open-choice', node)" title="Click to replace function node">{{ node.name }}(</span>
                 <template v-if="Array.isArray(node.inner)">
                     <template v-for="(child, idx) in node.inner" :key="idx">
-                        <tree-node :node="child" :func-name="funcName" :param-count="paramCount" :rec-def-index="recDefIndex" @open-choice="$emit('open-choice', $event)"></tree-node>
+                        <tree-node :node="child" :func-name="funcName" :param-count="paramCount" :rec-def-index="recDefIndex" :is-init="isInit" @open-choice="$emit('open-choice', $event)"></tree-node>
                         <span v-if="idx < node.inner.length - 1" class="me-1">,</span>
                     </template>
                 </template>

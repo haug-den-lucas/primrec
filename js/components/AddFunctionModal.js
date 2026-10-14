@@ -104,13 +104,13 @@ export default {
                         <div class="fw-semibold text-muted mb-1">Base Step:</div>
                         <code>
                             {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, true) }} =
-                            <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="$emit('open-choice', $event)"></tree-node>
+                            <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" :is-init="true" @open-choice="$emit('open-choice', $event)"></tree-node>
                         </code>
 
                         <div class="fw-semibold text-muted mt-3 mb-1">Recursive Step:</div>
                         <code>
                             {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, false) }} =
-                            <tree-node :node="newRecDef[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="$emit('open-choice', $event)"></tree-node>
+                            <tree-node :node="newRecDef[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" :is-init="false" @open-choice="$emit('open-choice', $event)"></tree-node>
                         </code>
                     </div>
 

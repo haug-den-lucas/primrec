@@ -7,12 +7,6 @@
 
 import { getFunctionDefinition } from './data.js';
 
-/**
- * Clears calculation cache (kept for backwards compatibility).
- */
-export function clearCalcCache() {
-    // Direct computation with per-evaluation context; no global state cache required.
-}
 
 /**
  * Calculates the output of a named primitive recursive function given input parameters.

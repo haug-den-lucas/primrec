@@ -13,7 +13,9 @@ export default {
                 <button type="button" class="btn btn-sm btn-outline-primary placeholder-btn py-0 px-2 fw-bold ms-1 me-1" @click="$emit('open-choice', node)">+</button>
             </template>
             <template v-else-if="node.name === 'const'">
-                <span class="badge bg-secondary ms-1 me-1 fs-6">{{ node.inner }}</span>
+                <input type="number" min="0" class="form-control form-control-sm text-center d-inline-block px-1 py-0 ms-1 me-1 font-monospace fw-bold"
+                       style="width: 60px; height: 26px;"
+                       v-model.number="node.inner">
             </template>
             <template v-else-if="node.name === 'param'">
                 <span class="badge bg-info text-dark ms-1 me-1 fs-6">

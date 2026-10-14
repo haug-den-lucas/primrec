@@ -1,133 +1,151 @@
 /**
  * Calculation module for Primitive Recursive Simulator.
+ *
+ * Evaluates primitive recursive functions defined either by composition (type 1)
+ * or primitive recursion (type 0).
  */
 
 import { getFunctionDefinition } from './data.js';
 
-let tempResults = {};
-let recMaxTemp = {};
-
+/**
+ * Clears calculation cache (kept for backwards compatibility).
+ */
 export function clearCalcCache() {
-    tempResults = {};
-    recMaxTemp = {};
+    // Direct computation without global caching side-effects
 }
 
+/**
+ * Calculates the output of a named primitive recursive function given input parameters.
+ *
+ * @param {string} name - Function name
+ * @param {number[]} input - Numerical arguments
+ * @returns {number} Function result
+ */
 export function calculate(name, input) {
-    if (!tempResults[name]) {
-        tempResults[name] = {};
-    }
-    const inputKey = JSON.stringify(input);
-    if (tempResults[name][inputKey] !== undefined) {
-        return tempResults[name][inputKey];
-    }
-
     const func = getFunctionDefinition(name);
     if (!func) {
         throw new Error(`Function '${name}' is not defined`);
     }
 
-    let result;
-    switch (func.type) {
-        case 0:
-            result = calculateRec(name, input);
-            break;
-        case 1:
-            result = calculateAdv(func.init[0], input, name);
-            break;
-        default:
-            throw new Error(`Unknown function type: ${func.type}`);
+    if (func.type === 0) {
+        return calculatePrimitiveRecursion(name, func, input);
+    } else if (func.type === 1) {
+        return evaluateExpression(func.init[0], input, name);
     }
 
-    tempResults[name][inputKey] = result;
-    return result;
+    throw new Error(`Unknown function type: ${func.type}`);
 }
 
-function calculateRec(name, input) {
-    let currentRecMax = 0;
-    const func = getFunctionDefinition(name);
+/**
+ * Evaluates a function defined via primitive recursion (type 0).
+ *
+ * For a function h(x1,..., xk, n, y1,..., ym) where n is the recursion parameter at recDefIndex:
+ * - base case (n = 0): evaluated using func.init[0]
+ * - step case (n -> n + 1): iteratively evaluated using func.recDef[0]
+ */
+function calculatePrimitiveRecursion(name, func, input) {
     const recDefIndex = func.recDefIndex;
+    const targetSteps = input[recDefIndex];
 
-    if (!recMaxTemp[name]) {
-        recMaxTemp[name] = {};
+    const currentInput = [...input];
+
+    // Base case: recursion parameter set to 0
+    currentInput[recDefIndex] = 0;
+    let lastResult = evaluateExpression(func.init[0], currentInput, name);
+
+    // Iteratively apply step definition from 1 to n
+    for (let step = 1; step <= targetSteps; step++) {
+        currentInput[recDefIndex] = step;
+        lastResult = evaluateExpression(func.recDef[0], currentInput, name, recDefIndex, lastResult);
     }
 
-    let inputToChange = [...input];
-    inputToChange.splice(recDefIndex, 1);
-    const splicedInputString = JSON.stringify(inputToChange);
-
-    if (recMaxTemp[name][splicedInputString] !== undefined && recMaxTemp[name][splicedInputString] <= input[recDefIndex]) {
-        currentRecMax = recMaxTemp[name][splicedInputString];
-    }
-
-    let lastResult = 0;
-    inputToChange = [...input];
-
-    if (currentRecMax === 0) {
-        inputToChange[recDefIndex] = 0;
-        lastResult = calculateAdv(func.init[0], inputToChange, name);
-    } else {
-        inputToChange[recDefIndex] = currentRecMax;
-        lastResult = tempResults[name][JSON.stringify(inputToChange)];
-    }
-
-    for (let i = currentRecMax + 1; i <= input[recDefIndex]; i++) {
-        inputToChange[recDefIndex] = i;
-        lastResult = calculateAdv(func.recDef[0], inputToChange, name, recDefIndex, lastResult);
-    }
-
-    recMaxTemp[name][splicedInputString] = input[recDefIndex];
     return lastResult;
 }
 
-function calculateAdv(jsonFunc, input, origName, recDefIndex = -1, lastResult = null) {
-    const name = jsonFunc.name;
-    const inner = jsonFunc.inner;
-
-    let result;
-
-    if (name === "param") {
-        result = input[inner];
-        if (inner === recDefIndex) {
-            result--;
-        }
-        return result;
-    } else if (name === "const") {
-        return inner;
-    } else if (name === origName) {
-        if (recDefIndex > -1) {
-            return lastResult;
-        } else {
-            throw new Error("Illegal recursion");
-        }
-    }
-
-    const nextInput = doNextInputCalc(inner, input, origName, recDefIndex, lastResult);
-
-    if (name === "add") {
-        result = nextInput[0] + nextInput[1];
-    } else if (name === "mult") {
-        result = nextInput[0] * nextInput[1];
-    } else if (name === "s") {
-        result = nextInput[0] + 1;
-    } else {
-        result = calculate(name, nextInput);
-    }
-
-    return result;
+/**
+ * Checks if an expression tree node is a leaf (param, const, or recursive self-reference).
+ */
+function isLeafNode(node, origName) {
+    return node.name === "param" || node.name === "const" || node.name === origName;
 }
 
-function doNextInputCalc(inner, input, origName, recDefIndex, lastResult) {
-    const nextInput = [];
-    for (let i = 0; i < inner.length; i++) {
-        if (inner[i].name === origName) {
-            if (recDefIndex > -1) {
-                nextInput[i] = lastResult;
+/**
+ * Evaluates a leaf node value directly.
+ */
+function evaluateLeafNode(node, input, origName, recDefIndex, lastResult) {
+    if (node.name === "param") {
+        return node.inner === recDefIndex ? input[node.inner] - 1 : input[node.inner];
+    }
+    if (node.name === "const") {
+        return node.inner;
+    }
+    if (node.name === origName) {
+        if (recDefIndex > -1) {
+            return lastResult;
+        }
+        throw new Error("Illegal recursion");
+    }
+    throw new Error(`Unknown leaf node type: ${node.name}`);
+}
+
+/**
+ * Iteratively evaluates an expression tree for function composition, avoiding
+ * call stack overflow even for deeply nested expression trees.
+ */
+function evaluateExpression(rootNode, input, origName, recDefIndex = -1, lastResult = null) {
+    if (isLeafNode(rootNode, origName)) {
+        return evaluateLeafNode(rootNode, input, origName, recDefIndex, lastResult);
+    }
+
+    // Call stack optimization: explicit stack for traversing composition tree
+    const stack = [{
+        node: rootNode,
+        args: [],
+        childIndex: 0
+    }];
+
+    let lastReturnedValue = null;
+
+    while (stack.length > 0) {
+        const top = stack[stack.length - 1];
+        const innerNodes = top.node.inner;
+        const numChildren = Array.isArray(innerNodes) ? innerNodes.length : 0;
+
+        if (top.childIndex < numChildren) {
+            const childNode = innerNodes[top.childIndex];
+            top.childIndex++;
+
+            if (isLeafNode(childNode, origName)) {
+                top.args.push(evaluateLeafNode(childNode, input, origName, recDefIndex, lastResult));
             } else {
-                throw new Error("Illegal recursion");
+                stack.push({
+                    node: childNode,
+                    args: [],
+                    childIndex: 0
+                });
             }
         } else {
-            nextInput[i] = calculateAdv(inner[i], input, origName, recDefIndex, lastResult);
+            // All child arguments evaluated for this node
+            const name = top.node.name;
+            const subArgs = top.args;
+
+            if (name === "add") {
+                lastReturnedValue = subArgs[0] + subArgs[1];
+            } else if (name === "mult") {
+                lastReturnedValue = subArgs[0] * subArgs[1];
+            } else if (name === "s") {
+                lastReturnedValue = subArgs[0] + 1;
+            } else {
+                lastReturnedValue = calculate(name, subArgs);
+            }
+
+            stack.pop();
+
+            if (stack.length > 0) {
+                stack[stack.length - 1].args.push(lastReturnedValue);
+            }
         }
     }
-    return nextInput;
+
+    return lastReturnedValue;
 }

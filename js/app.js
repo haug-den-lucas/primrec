@@ -5,14 +5,13 @@
 import {
     PREDEFINED_FUNCTIONS,
     PREDEFINED_FUNCTION_KEYS,
-    getUserFunctions,
     setUserFunctions,
     getFunctionDefinition,
     loadFunctionsFromStorage,
     saveFunctionsToStorage
 } from './data.js';
 
-import { calculate, clearCalcCache } from './calc.js';
+import { calculate } from './calc.js';
 import { renderDefinitionLines } from './formatter.js';
 import TreeNode from './components/TreeNode.js';
 import AddFunctionModal from './components/AddFunctionModal.js';
@@ -99,7 +98,6 @@ createApp({
             setUserFunctions(userFuncs.value);
             saveFunctionsToStorage();
             updateJsonCodeArea();
-            clearCalcCache();
         };
 
         const loadCodeFromJson = () => {

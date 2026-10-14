@@ -37,7 +37,7 @@ export default {
                             <button v-for="i in newParamCount" :key="i - 1" type="button"
                                     class="btn btn-outline-primary fs-5 py-2 fw-bold"
                                     @click="selectParam(i - 1)">
-                                Parameter {{ String.fromCharCode(96 + i) }} (Index {{ i }})
+                                Parameter {{ String.fromCharCode(96 + i) }}
                             </button>
                             <button type="button" class="btn btn-sm btn-secondary mt-2" @click="showParamPicker = false">
                                 &laquo; Back

@@ -229,7 +229,11 @@ createApp({
         const chooseInnerType = (type, paramIdx) => {
             if (!currentlyTargetPlaceholder.value) return;
 
-            if (type === 'constant') {
+            if (type === 'reset') {
+                currentlyTargetPlaceholder.value.name = "placeholder";
+                currentlyTargetPlaceholder.value.inner = 0;
+                if (chooseTypeModalInstance) chooseTypeModalInstance.hide();
+            } else if (type === 'constant') {
                 currentlyTargetPlaceholder.value.name = "const";
                 currentlyTargetPlaceholder.value.inner = 0;
                 if (chooseTypeModalInstance) chooseTypeModalInstance.hide();

@@ -61,6 +61,9 @@ export default {
                             <button v-if="newFuncType === 0 && wizardStep === 3" type="button" class="list-group-item list-group-item-action list-group-item-warning" @click="$emit('choose-type', 'recDef')">
                                 Recursive Self-Call ({{ newFuncName }})
                             </button>
+                            <button type="button" class="list-group-item list-group-item-action list-group-item-danger mt-2 fw-semibold" @click="$emit('choose-type', 'reset')">
+                                Reset / Clear Node (+)
+                            </button>
                         </div>
                     </template>
                 </div>

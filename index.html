@@ -56,8 +56,7 @@
                             <div class="d-flex align-items-center flex-wrap gap-2">
                                 <span class="fw-bold fs-5">{{ selectedFuncName }}(</span>
                                 <template v-for="(paramVal, idx) in inputParams" :key="idx">
-                                    <input type="number" min="0" class="form-control form-control-sm text-center fw-bold d-inline-block"
-                                           style="width: 70px;"
+                                    <input type="number" min="0" class="form-control inline-num-input"
                                            :placeholder="String.fromCharCode(97 + idx)"
                                            v-model.number="inputParams[idx]"
                                            @input="calculationResult = null; calculationError = null">

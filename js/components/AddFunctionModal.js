@@ -75,27 +75,18 @@ export default {
                     </form>
                 </div>
 
-                <!-- Step 2 (Recursive only): Recursion Base / Parameter -->
+                <!-- Step 2 (Recursive only): Select Recursion Parameter -->
                 <div class="modal-body" v-if="wizardStep === 2">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Select the recursion parameter:</label>
+                        <p class="text-muted small mb-2">Choose which parameter will be decremented in recursive calls (h(..., 0, ...) vs h(..., n+1, ...)).</p>
                         <div class="btn-group w-100" role="group">
                             <button v-for="i in newParamCount" :key="i - 1" type="button"
-                                    class="btn"
+                                    class="btn py-2 fw-bold"
                                     :class="newRecIndex === (i - 1) ? 'btn-primary' : 'btn-outline-primary'"
                                     @click="$emit('select-rec-param', i - 1)">
-                                {{ String.fromCharCode(96 + i) }}
+                                Parameter {{ String.fromCharCode(96 + i) }}
                             </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3" v-if="newRecIndex !== -1">
-                        <label class="form-label fw-bold">Define Base Case (h(..., 0, ...)):</label>
-                        <div class="p-3 bg-light rounded">
-                            <code>
-                                {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, true) }} =
-                                <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="$emit('open-choice', $event)"></tree-node>
-                            </code>
                         </div>
                     </div>
                 </div>

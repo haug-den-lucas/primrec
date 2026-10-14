@@ -200,10 +200,10 @@ createApp({
             }
 
             if (newFuncType.value === 0) {
-                wizardStep.value = 2; // select recParam & init
+                wizardStep.value = 2; // select recParam
                 newRecIndex.value = -1;
             } else {
-                wizardStep.value = 3; // final definition
+                wizardStep.value = 2; // for composed, step 2 is final definition
             }
         };
 

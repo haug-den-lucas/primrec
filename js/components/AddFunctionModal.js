@@ -29,7 +29,7 @@ export default {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addFunctionModalLabel">
-                        Create Function - Step {{ newFuncType === 1 && wizardStep === 3 ? 2 : wizardStep }} of {{ newFuncType === 0 ? 3 : 2 }}
+                        Create Function - Step {{ wizardStep }} of {{ newFuncType === 0 ? 3 : 2 }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -76,7 +76,7 @@ export default {
                 </div>
 
                 <!-- Step 2 (Recursive only): Select Recursion Parameter -->
-                <div class="modal-body" v-if="wizardStep === 2">
+                <div class="modal-body" v-if="wizardStep === 2 && newFuncType === 0">
                     <div class="mb-3 text-center">
                         <label class="form-label fw-bold mb-2">Click on the parameter you want to recurse on:</label>
                         <div class="p-4 bg-light rounded font-monospace fs-4 border d-flex align-items-center justify-content-center gap-1">
@@ -96,8 +96,8 @@ export default {
                     </div>
                 </div>
 
-                <!-- Step 3 / Final: Interactive Tree Definition -->
-                <div class="modal-body" v-if="wizardStep === 3">
+                <!-- Step 2 (Composite) / Step 3 (Recursive): Interactive Tree Definition -->
+                <div class="modal-body" v-if="(newFuncType === 1 && wizardStep === 2) || (newFuncType === 0 && wizardStep === 3)">
                     <label class="form-label fw-bold">Define Function Expression:</label>
 
                     <div v-if="newFuncType === 0" class="mb-3 p-3 bg-light rounded">
@@ -125,8 +125,8 @@ export default {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button v-if="wizardStep === 1" type="button" class="btn btn-primary" @click="$emit('wizard-next-1')">Next</button>
-                    <button v-if="wizardStep === 2" type="button" class="btn btn-primary" @click="$emit('wizard-next-2')">Next</button>
-                    <button v-if="wizardStep === 3" type="button" class="btn btn-success" @click="$emit('finish')">Finish</button>
+                    <button v-if="newFuncType === 0 && wizardStep === 2" type="button" class="btn btn-primary" @click="$emit('wizard-next-2')">Next</button>
+                    <button v-if="(newFuncType === 1 && wizardStep === 2) || (newFuncType === 0 && wizardStep === 3)" type="button" class="btn btn-success" @click="$emit('finish')">Finish</button>
                 </div>
             </div>
         </div>

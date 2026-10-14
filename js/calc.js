@@ -44,13 +44,6 @@ export function calculate(name, input, ctx = null) {
 
 /**
  * Builds a full calculation tree for evaluating function `name` with `input`.
- * Return object structure:
- * {
- *   label: string,       // e.g. "add(2, 3)"
- *   result: number,      // e.g. 5
- *   expr: string,        // e.g. "add(2, 3) = 5"
- *   children: array      // child nodes
- * }
  */
 export function calculateWithTree(name, input) {
     const func = getFunctionDefinition(name);
@@ -72,58 +65,38 @@ export function calculateWithTree(name, input) {
  */
 function buildPrimitiveRecursionTree(name, func, input) {
     const recDefIndex = func.recDefIndex;
-    const targetSteps = input[recDefIndex];
-
-    const children = [];
-
-    // Base case n = 0
-    let currentInput = [...input];
-    currentInput[recDefIndex] = 0;
-
-    // Evaluate init expression for n=0
-    const baseTree = buildExpressionTree(func.init[0], currentInput, name, recDefIndex, null, true);
-    let lastResult = baseTree.result;
-
-    children.push({
-        label: `${name}(${currentInput.join(', ')}) [base case]`,
-        result: lastResult,
-        expr: `${name}(${currentInput.join(', ')}) = ${lastResult}`,
-        type: 'step',
-        children: [baseTree]
-    });
-
-    // Step cases n = 1 .. targetSteps
-    for (let step = 1; step <= targetSteps; step++) {
-        currentInput = [...input];
-        currentInput[recDefIndex] = step;
-
-        const stepTree = buildExpressionTree(func.recDef[0], currentInput, name, recDefIndex, lastResult, false);
-        lastResult = stepTree.result;
-
-        children.push({
-            label: `${name}(${currentInput.join(', ')}) [step n=${step}]`,
-            result: lastResult,
-            expr: `${name}(${currentInput.join(', ')}) = ${lastResult}`,
-            type: 'step',
-            children: [stepTree]
-        });
-    }
+    const n = input[recDefIndex];
 
     const label = `${name}(${input.join(', ')})`;
-    return {
-        label,
-        result: lastResult,
-        expr: `${label} = ${lastResult}`,
-        type: 'function',
-        children
-    };
+
+    if (n === 0) {
+        // Base case: evaluate func.init[0]
+        const exprTree = buildExpressionTree(func.init[0], input, name, recDefIndex, true);
+        return {
+            label,
+            result: exprTree.result,
+            expr: `${label} = ${exprTree.result}`,
+            type: 'function',
+            children: [exprTree]
+        };
+    } else {
+        // Step case: evaluate func.recDef[0]
+        const exprTree = buildExpressionTree(func.recDef[0], input, name, recDefIndex, false);
+        return {
+            label,
+            result: exprTree.result,
+            expr: `${label} = ${exprTree.result}`,
+            type: 'function',
+            children: [exprTree]
+        };
+    }
 }
 
 /**
  * Builds calculation tree for a function defined via composition (type 1).
  */
 function buildCompositionTree(name, func, input) {
-    const rootExprTree = buildExpressionTree(func.init[0], input, name, -1, null, false);
+    const rootExprTree = buildExpressionTree(func.init[0], input, name, -1, false);
     const label = `${name}(${input.join(', ')})`;
     const result = rootExprTree.result;
 
@@ -139,15 +112,20 @@ function buildCompositionTree(name, func, input) {
 /**
  * Recursively builds expression evaluation tree node.
  */
-function buildExpressionTree(node, input, origName, recDefIndex, lastResult, isInitStep) {
+function buildExpressionTree(node, input, origName, recDefIndex, isInitStep) {
     const name = node.name;
 
     if (name === "param") {
         const paramIdx = node.inner;
-        const val = (paramIdx === recDefIndex && isInitStep) ? 0 : input[paramIdx];
+        let val;
+        if (paramIdx === recDefIndex) {
+            val = isInitStep ? 0 : input[paramIdx] - 1;
+        } else {
+            val = input[paramIdx];
+        }
         const paramName = String.fromCharCode(97 + paramIdx);
         return {
-            label: `param ${paramName} (${paramIdx + 1})`,
+            label: `param ${paramName}`,
             result: val,
             expr: `param ${paramName} = ${val}`,
             type: 'leaf',
@@ -168,17 +146,10 @@ function buildExpressionTree(node, input, origName, recDefIndex, lastResult, isI
 
     if (name === origName) {
         if (recDefIndex > -1) {
-            // Self-reference call in step case (representing previous step result)
+            // Recursive self call: call origName with step - 1 for recDefIndex parameter
             let prevInput = [...input];
             prevInput[recDefIndex] = input[recDefIndex] - 1;
-            const label = `${origName}(${prevInput.join(', ')})`;
-            return {
-                label: `${label} [previous step]`,
-                result: lastResult,
-                expr: `${label} = ${lastResult}`,
-                type: 'recSelf',
-                children: []
-            };
+            return calculateWithTree(origName, prevInput);
         }
         throw new Error("Illegal recursion");
     }
@@ -186,7 +157,7 @@ function buildExpressionTree(node, input, origName, recDefIndex, lastResult, isI
     // Node is an inner node (a function call: 'add', 'mult', 's', or a defined user/predefined function)
     const childNodes = Array.isArray(node.inner) ? node.inner : [];
     const evaluatedChildren = childNodes.map(child =>
-        buildExpressionTree(child, input, origName, recDefIndex, lastResult, isInitStep)
+        buildExpressionTree(child, input, origName, recDefIndex, isInitStep)
     );
     const childArgs = evaluatedChildren.map(c => c.result);
 
@@ -207,8 +178,6 @@ function buildExpressionTree(node, input, origName, recDefIndex, lastResult, isI
     }
 
     const label = `${name}(${childArgs.join(', ')})`;
-
-    // Combine child expression trees and subTree details if any
     const allChildren = [...evaluatedChildren, ...extraChildren];
 
     return {
@@ -219,7 +188,6 @@ function buildExpressionTree(node, input, origName, recDefIndex, lastResult, isI
         children: allChildren
     };
 }
-
 
 /**
  * Evaluates a function defined via primitive recursion (type 0).

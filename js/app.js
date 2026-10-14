@@ -125,7 +125,7 @@ createApp({
 
             const func = getFunctionDefinition(name);
             if (func) {
-                inputParams.value = new Array(func.params).fill(null);
+                inputParams.value = new Array(func.params);
             }
         };
 
@@ -141,23 +141,10 @@ createApp({
             }
         };
 
-        const setParamValue = (index) => {
-            const currentVal = inputParams.value[index];
-            const valStr = prompt("Enter non-negative integer value for parameter " + String.fromCharCode(97 + index) + ":", currentVal !== null ? currentVal : 0);
-            if (valStr === null) return;
-
-            const parsed = parseInt(valStr, 10);
-            if (!isNaN(parsed) && parsed >= 0) {
-                inputParams.value[index] = parsed;
-            } else {
-                alert("Please enter a valid non-negative integer.");
-            }
-        };
-
         const runCalculation = () => {
             if (!selectedFuncName.value) return;
-            if (inputParams.value.some(v => v === null || v < 0)) {
-                alert("Please set all parameters first.");
+            if (inputParams.value.some(v => v === null || v === "" || isNaN(v) || v < 0)) {
+                alert("Please enter valid non-negative integer values for all parameters.");
                 return;
             }
 
@@ -213,10 +200,10 @@ createApp({
             }
 
             if (newFuncType.value === 0) {
-                wizardStep.value = 2; // select recParam & init
+                wizardStep.value = 2; // select recParam
                 newRecIndex.value = -1;
             } else {
-                wizardStep.value = 3; // final definition
+                wizardStep.value = 2; // for composed, step 2 is final definition
             }
         };
 
@@ -239,24 +226,24 @@ createApp({
             if (chooseTypeModalInstance) chooseTypeModalInstance.show();
         };
 
-        const chooseInnerType = (type) => {
+        const chooseInnerType = (type, paramIdx) => {
             if (!currentlyTargetPlaceholder.value) return;
 
-            if (type === 'constant') {
-                const val = prompt("Enter constant non-negative integer value:");
-                if (val === null) return;
-                const parsed = parseInt(val, 10);
-                if (isNaN(parsed) || parsed < 0) {
-                    alert("Invalid constant value.");
-                    return;
-                }
+            if (type === 'reset') {
+                currentlyTargetPlaceholder.value.name = "placeholder";
+                currentlyTargetPlaceholder.value.inner = 0;
+                if (chooseTypeModalInstance) chooseTypeModalInstance.hide();
+            } else if (type === 'constant') {
                 currentlyTargetPlaceholder.value.name = "const";
-                currentlyTargetPlaceholder.value.inner = parsed;
+                currentlyTargetPlaceholder.value.inner = 0;
                 if (chooseTypeModalInstance) chooseTypeModalInstance.hide();
             } else if (type === 'param') {
-                const val = prompt(`Enter parameter index (1 to ${newParamCount.value}):`);
-                if (val === null) return;
-                const parsed = parseInt(val, 10) - 1;
+                let parsed = paramIdx;
+                if (parsed === undefined || parsed === null) {
+                    const val = prompt(`Enter parameter index (1 to ${newParamCount.value}):`);
+                    if (val === null) return;
+                    parsed = parseInt(val, 10) - 1;
+                }
                 if (isNaN(parsed) || parsed < 0 || parsed >= newParamCount.value) {
                     alert("Invalid parameter index.");
                     return;
@@ -345,7 +332,6 @@ createApp({
             loadCodeFromJson,
             selectFunction,
             deleteSelectedFunction,
-            setParamValue,
             runCalculation,
             getFunctionSignature,
 

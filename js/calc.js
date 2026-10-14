@@ -11,29 +11,49 @@ import { getFunctionDefinition } from './data.js';
  * Clears calculation cache (kept for backwards compatibility).
  */
 export function clearCalcCache() {
-    // Direct computation without global caching side-effects
+    // Direct computation with per-evaluation context; no global state cache required.
 }
 
 /**
  * Calculates the output of a named primitive recursive function given input parameters.
+ * An optional evaluation context can be passed or created per top-level evaluation
+ * to memoize results during that single evaluation without relying on global state.
  *
  * @param {string} name - Function name
  * @param {number[]} input - Numerical arguments
+ * @param {Object|null} [ctx=null] - Evaluation context containing memoization tables
  * @returns {number} Function result
  */
-export function calculate(name, input) {
+export function calculate(name, input, ctx = null) {
+    if (!ctx) {
+        ctx = { memo: {}, recMax: {} };
+    }
+
+    if (!ctx.memo[name]) {
+        ctx.memo[name] = {};
+    }
+
+    const inputKey = JSON.stringify(input);
+    if (ctx.memo[name][inputKey] !== undefined) {
+        return ctx.memo[name][inputKey];
+    }
+
     const func = getFunctionDefinition(name);
     if (!func) {
         throw new Error(`Function '${name}' is not defined`);
     }
 
+    let result;
     if (func.type === 0) {
-        return calculatePrimitiveRecursion(name, func, input);
+        result = calculatePrimitiveRecursion(name, func, input, ctx);
     } else if (func.type === 1) {
-        return evaluateExpression(func.init[0], input, name);
+        result = evaluateExpression(func.init[0], input, name, -1, null, ctx);
+    } else {
+        throw new Error(`Unknown function type: ${func.type}`);
     }
 
-    throw new Error(`Unknown function type: ${func.type}`);
+    ctx.memo[name][inputKey] = result;
+    return result;
 }
 
 /**
@@ -42,23 +62,46 @@ export function calculate(name, input) {
  * For a function h(x1,..., xk, n, y1,..., ym) where n is the recursion parameter at recDefIndex:
  * - base case (n = 0): evaluated using func.init[0]
  * - step case (n -> n + 1): iteratively evaluated using func.recDef[0]
+ *
+ * Progress and intermediate step results are memoized in the evaluation context (`ctx`)
+ * to prevent redundant base-case recalculations during nested evaluations.
  */
-function calculatePrimitiveRecursion(name, func, input) {
+function calculatePrimitiveRecursion(name, func, input, ctx) {
     const recDefIndex = func.recDefIndex;
     const targetSteps = input[recDefIndex];
 
-    const currentInput = [...input];
-
-    // Base case: recursion parameter set to 0
-    currentInput[recDefIndex] = 0;
-    let lastResult = evaluateExpression(func.init[0], currentInput, name);
-
-    // Iteratively apply step definition from 1 to n
-    for (let step = 1; step <= targetSteps; step++) {
-        currentInput[recDefIndex] = step;
-        lastResult = evaluateExpression(func.recDef[0], currentInput, name, recDefIndex, lastResult);
+    if (!ctx.recMax[name]) {
+        ctx.recMax[name] = {};
     }
 
+    let splicedInput = [...input];
+    splicedInput.splice(recDefIndex, 1);
+    const splicedInputKey = JSON.stringify(splicedInput);
+
+    let currentRecMax = 0;
+    if (ctx.recMax[name][splicedInputKey] !== undefined && ctx.recMax[name][splicedInputKey] <= targetSteps) {
+        currentRecMax = ctx.recMax[name][splicedInputKey];
+    }
+
+    let inputToChange = [...input];
+    let lastResult;
+
+    if (currentRecMax === 0) {
+        inputToChange[recDefIndex] = 0;
+        lastResult = evaluateExpression(func.init[0], inputToChange, name, -1, null, ctx);
+        ctx.memo[name][JSON.stringify(inputToChange)] = lastResult;
+    } else {
+        inputToChange[recDefIndex] = currentRecMax;
+        lastResult = ctx.memo[name][JSON.stringify(inputToChange)];
+    }
+
+    for (let step = currentRecMax + 1; step <= targetSteps; step++) {
+        inputToChange[recDefIndex] = step;
+        lastResult = evaluateExpression(func.recDef[0], inputToChange, name, recDefIndex, lastResult, ctx);
+        ctx.memo[name][JSON.stringify(inputToChange)] = lastResult;
+    }
+
+    ctx.recMax[name][splicedInputKey] = targetSteps;
     return lastResult;
 }
 
@@ -92,7 +135,7 @@ function evaluateLeafNode(node, input, origName, recDefIndex, lastResult) {
  * Iteratively evaluates an expression tree for function composition, avoiding
  * call stack overflow even for deeply nested expression trees.
  */
-function evaluateExpression(rootNode, input, origName, recDefIndex = -1, lastResult = null) {
+function evaluateExpression(rootNode, input, origName, recDefIndex = -1, lastResult = null, ctx = null) {
     if (isLeafNode(rootNode, origName)) {
         return evaluateLeafNode(rootNode, input, origName, recDefIndex, lastResult);
     }
@@ -136,7 +179,7 @@ function evaluateExpression(rootNode, input, origName, recDefIndex = -1, lastRes
             } else if (name === "s") {
                 lastReturnedValue = subArgs[0] + 1;
             } else {
-                lastReturnedValue = calculate(name, subArgs);
+                lastReturnedValue = calculate(name, subArgs, ctx);
             }
 
             stack.pop();

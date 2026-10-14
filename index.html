@@ -44,24 +44,11 @@
                     <div class="row mb-3">
                         <div class="col-md-5">
                             <h5 class="text-muted">Definition:</h5>
-                            <!-- Recursive Definition Display -->
-                            <template v-if="currentFuncObj.type === 0">
-                                <div>
-                                    <code>
-                                        <tree-node :node="currentFuncObj.init[0]" :func-name="selectedFuncName" :param-count="currentFuncObj.params" :rec-def-index="currentFuncObj.recDefIndex"></tree-node>
-                                    </code>
-                                    <br>
-                                    <code>
-                                        <tree-node :node="currentFuncObj.recDef[0]" :func-name="selectedFuncName" :param-count="currentFuncObj.params" :rec-def-index="currentFuncObj.recDefIndex"></tree-node>
-                                    </code>
+                            <div class="p-2 bg-light rounded font-monospace">
+                                <div v-for="(line, idx) in definitionLines" :key="idx" class="fs-6 text-dark">
+                                    {{ line }}
                                 </div>
-                            </template>
-                            <!-- Composed Definition Display -->
-                            <template v-else>
-                                <code>
-                                    <tree-node :node="currentFuncObj.init[0]" :func-name="selectedFuncName" :param-count="currentFuncObj.params"></tree-node>
-                                </code>
-                            </template>
+                            </div>
                         </div>
 
                         <div class="col-md-7">
@@ -158,161 +145,35 @@
         </div>
     </section>
 
-    <!-- Create Function Wizard Modal -->
-    <div class="modal fade" id="addFunctionModal" tabindex="-1" aria-labelledby="addFunctionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addFunctionModalLabel">
-                        Create Function - Step {{ wizardStep }} of {{ newFuncType === 0 ? 3 : 2 }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <!-- Refactored Vue Modal Components -->
+    <add-function-modal
+        :wizard-step="wizardStep"
+        v-model:new-func-name="newFuncName"
+        v-model:new-param-count="newParamCount"
+        v-model:new-func-type="newFuncType"
+        :new-rec-index="newRecIndex"
+        :new-init="newInit"
+        :new-rec-def="newRecDef"
+        :get-function-signature="getFunctionSignature"
+        @wizard-next-1="wizardNextStep1"
+        @wizard-next-2="wizardNextStep2"
+        @select-rec-param="selectRecParam"
+        @open-choice="openChoiceModal"
+        @finish="finishCreateFunction">
+    </add-function-modal>
 
-                <!-- Step 1: Function Name, Parameters, and Type -->
-                <div class="modal-body" v-if="wizardStep === 1">
-                    <form @submit.prevent="wizardNextStep1">
-                        <div class="mb-3 row">
-                            <label for="newName" class="col-sm-3 col-form-label fw-bold">Name</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="newName" v-model="newFuncName" placeholder="Function Name (e.g. sqr)">
-                            </div>
-                        </div>
-                        <div class="mb-3 row">
-                            <label for="newParams" class="col-sm-3 col-form-label fw-bold">Parameters</label>
-                            <div class="col-sm-9">
-                                <input type="number" min="1" class="form-control" id="newParams" v-model.number="newParamCount" placeholder="Number of parameters">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">How is your function defined?</label>
-                            <div class="list-group">
-                                <label class="list-group-item cursor-pointer" :class="{ 'active': newFuncType === 1 }">
-                                    <input class="form-check-input me-1" type="radio" :value="1" v-model="newFuncType">
-                                    Composed strictly from other functions
-                                </label>
-                                <label class="list-group-item cursor-pointer" :class="{ 'active': newFuncType === 0 }">
-                                    <input class="form-check-input me-1" type="radio" :value="0" v-model="newFuncType">
-                                    Recursively defined
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <choose-type-modal
+        :new-func-type="newFuncType"
+        :wizard-step="wizardStep"
+        :new-func-name="newFuncName"
+        @choose-type="chooseInnerType">
+    </choose-type-modal>
 
-                <!-- Step 2 (Recursive only): Recursion Base / Parameter -->
-                <div class="modal-body" v-if="wizardStep === 2">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Select the recursion parameter:</label>
-                        <div class="btn-group w-100" role="group">
-                            <button v-for="i in newParamCount" :key="i - 1" type="button"
-                                    class="btn"
-                                    :class="newRecIndex === (i - 1) ? 'btn-primary' : 'btn-outline-primary'"
-                                    @click="selectRecParam(i - 1)">
-                                {{ String.fromCharCode(96 + i) }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3" v-if="newRecIndex !== -1">
-                        <label class="form-label fw-bold">Define Base Case (h(..., 0, ...)):</label>
-                        <div class="p-3 bg-light rounded">
-                            <code>
-                                {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, true) }} =
-                                <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="openChoiceModal"></tree-node>
-                            </code>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 3 / Final: Interactive Tree Definition -->
-                <div class="modal-body" v-if="wizardStep === 3">
-                    <label class="form-label fw-bold">Define Function Expression:</label>
-
-                    <div v-if="newFuncType === 0" class="mb-3 p-3 bg-light rounded">
-                        <div class="fw-semibold text-muted mb-1">Base Step:</div>
-                        <code>
-                            {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, true) }} =
-                            <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="openChoiceModal"></tree-node>
-                        </code>
-
-                        <div class="fw-semibold text-muted mt-3 mb-1">Recursive Step:</div>
-                        <code>
-                            {{ getFunctionSignature(newFuncName, newParamCount, newRecIndex, false) }} =
-                            <tree-node :node="newRecDef[0]" :func-name="newFuncName" :param-count="newParamCount" :rec-def-index="newRecIndex" @open-choice="openChoiceModal"></tree-node>
-                        </code>
-                    </div>
-
-                    <div v-else class="p-3 bg-light rounded">
-                        <code>
-                            {{ getFunctionSignature(newFuncName, newParamCount) }} =
-                            <tree-node :node="newInit[0]" :func-name="newFuncName" :param-count="newParamCount" @open-choice="openChoiceModal"></tree-node>
-                        </code>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button v-if="wizardStep === 1" type="button" class="btn btn-primary" @click="wizardNextStep1">Next</button>
-                    <button v-if="wizardStep === 2" type="button" class="btn btn-primary" @click="wizardNextStep2">Next</button>
-                    <button v-if="wizardStep === 3" type="button" class="btn btn-success" @click="finishCreateFunction">Finish</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Choose Component Type Modal -->
-    <div class="modal fade" id="chooseTypeModal" tabindex="-1" aria-labelledby="chooseTypeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="chooseTypeModalLabel">Choose Expression Component</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="list-group">
-                        <button type="button" class="list-group-item list-group-item-action" @click="chooseInnerType('constant')">
-                            Constant Number
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" @click="chooseInnerType('param')">
-                            Parameter Variable
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" @click="chooseInnerType('succ')">
-                            Successor Function s(n) = n + 1
-                        </button>
-                        <button type="button" class="list-group-item list-group-item-action" @click="chooseInnerType('function')">
-                            Existing Function
-                        </button>
-                        <button v-if="newFuncType === 0 && wizardStep === 3" type="button" class="list-group-item list-group-item-action list-group-item-warning" @click="chooseInnerType('recDef')">
-                            Recursive Self-Call ({{ newFuncName }})
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Choose Inner Function Sub-Modal -->
-    <div class="modal fade" id="chooseFunctionModal" tabindex="-1" aria-labelledby="chooseFunctionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="chooseFunctionModalLabel">Select Function</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="list-group">
-                        <button v-for="key in allPredefinedKeys" :key="key" type="button" class="list-group-item list-group-item-action" @click="selectInnerFunction(key)">
-                            {{ key }}
-                        </button>
-                        <button v-for="key in userFuncKeys" :key="key" type="button" class="list-group-item list-group-item-action" @click="selectInnerFunction(key)">
-                            {{ key }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <choose-function-modal
+        :all-predefined-keys="allPredefinedKeys"
+        :user-func-keys="userFuncKeys"
+        @select-inner-function="selectInnerFunction">
+    </choose-function-modal>
 </div>
 
 <!-- Vue 3 & Bootstrap 5 JS -->

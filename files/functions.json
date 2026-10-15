@@ -378,7 +378,7 @@
     ]
   },
   "fac": {
-    "params": "1",
+    "params": 1,
     "type": 0,
     "init": [
       {

@@ -59,7 +59,7 @@
                                     <input type="number" min="0" class="form-control inline-num-input"
                                            :placeholder="String.fromCharCode(97 + idx)"
                                            v-model.number="inputParams[idx]"
-                                           @input="calculationResult = null; calculationError = null">
+                                           @input="resetCalculation">
                                     <span v-if="idx < inputParams.length - 1" class="fw-bold fs-5">,</span>
                                 </template>
                                 <span class="fw-bold fs-5">) =</span>
@@ -84,12 +84,28 @@
                                 Delete
                             </button>
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-7 d-flex gap-2">
                             <button type="button" class="btn btn-primary" @click="runCalculation">
                                 Calculate
                             </button>
+                            <button type="button" class="btn btn-outline-primary" @click="toggleTreeVisualization">
+                                {{ isTreeVisible ? 'Hide Tree' : 'Visualize Tree' }}
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Tree Error Notice -->
+                    <div class="alert alert-warning mt-3 mb-0" v-if="isTreeVisible && treeError">
+                        <strong>Notice:</strong> {{ treeError }}
+                    </div>
+
+                    <!-- Recursive Calculation Tree Component -->
+                    <calculation-tree-view
+                        v-if="isTreeVisible && treeData"
+                        :tree-data="treeData"
+                        :func-name="selectedFuncName"
+                        @close="toggleTreeVisualization">
+                    </calculation-tree-view>
                 </div>
 
                 <div class="card-body text-center py-5" v-else>

@@ -12,20 +12,23 @@ import {
 } from './data.js';
 
 import { calculate } from './calc.js';
+import { evaluateWithTree } from './treeCalc.js';
 import { renderDefinitionLines } from './formatter.js';
 import TreeNode from './components/TreeNode.js';
 import AddFunctionModal from './components/AddFunctionModal.js';
 import ChooseTypeModal from './components/ChooseTypeModal.js';
 import ChooseFunctionModal from './components/ChooseFunctionModal.js';
+import CalculationTreeView from './components/CalculationTreeView.js';
 
-const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, watch, onMounted } = Vue;
 
 createApp({
     components: {
         TreeNode,
         AddFunctionModal,
         ChooseTypeModal,
-        ChooseFunctionModal
+        ChooseFunctionModal,
+        CalculationTreeView
     },
     setup() {
         // --- State ---
@@ -34,6 +37,9 @@ createApp({
         const inputParams = ref([]);
         const calculationResult = ref(null);
         const calculationError = ref(null);
+        const treeData = ref(null);
+        const isTreeVisible = ref(false);
+        const treeError = ref(null);
         const jsonCodeArea = ref("");
 
         // Creation Wizard State
@@ -116,10 +122,17 @@ createApp({
             }
         };
 
-        const selectFunction = (name) => {
-            selectedFuncName.value = name;
+        const resetCalculation = () => {
             calculationResult.value = null;
             calculationError.value = null;
+            treeData.value = null;
+            isTreeVisible.value = false;
+            treeError.value = null;
+        };
+
+        const selectFunction = (name) => {
+            selectedFuncName.value = name;
+            resetCalculation();
 
             const func = getFunctionDefinition(name);
             if (func) {
@@ -133,8 +146,7 @@ createApp({
             if (confirm("If you delete this function, any functions depending on it may break. Are you sure?")) {
                 delete userFuncs.value[selectedFuncName.value];
                 selectedFuncName.value = null;
-                calculationResult.value = null;
-                calculationError.value = null;
+                resetCalculation();
                 saveToStorage();
             }
         };
@@ -149,9 +161,48 @@ createApp({
             try {
                 calculationError.value = null;
                 calculationResult.value = calculate(selectedFuncName.value, inputParams.value);
+
+                // If tree is already open and visible, refresh it
+                if (isTreeVisible.value) {
+                    try {
+                        treeError.value = null;
+                        treeData.value = evaluateWithTree(selectedFuncName.value, inputParams.value);
+                    } catch (tErr) {
+                        treeError.value = tErr.message;
+                        treeData.value = null;
+                    }
+                }
             } catch (err) {
                 calculationError.value = err.message;
                 calculationResult.value = null;
+            }
+        };
+
+        const toggleTreeVisualization = () => {
+            if (isTreeVisible.value) {
+                isTreeVisible.value = false;
+                treeData.value = null;
+                treeError.value = null;
+                return;
+            }
+
+            if (!selectedFuncName.value) return;
+            if (inputParams.value.some(v => v === null || v === "" || isNaN(v) || v < 0)) {
+                alert("Please enter valid non-negative integer values for all parameters.");
+                return;
+            }
+
+            try {
+                calculationError.value = null;
+                treeError.value = null;
+                const evaluated = evaluateWithTree(selectedFuncName.value, inputParams.value);
+                calculationResult.value = evaluated.result;
+                treeData.value = evaluated;
+                isTreeVisible.value = true;
+            } catch (err) {
+                treeError.value = err.message;
+                isTreeVisible.value = true;
+                treeData.value = null;
             }
         };
 
@@ -300,6 +351,10 @@ createApp({
             selectFunction(name);
         };
 
+        watch(inputParams, () => {
+            resetCalculation();
+        }, { deep: true });
+
         onMounted(() => {
             initModals();
             loadFromStorage();
@@ -311,6 +366,9 @@ createApp({
             inputParams,
             calculationResult,
             calculationError,
+            treeData,
+            isTreeVisible,
+            treeError,
             jsonCodeArea,
 
             wizardStep,
@@ -331,6 +389,8 @@ createApp({
             selectFunction,
             deleteSelectedFunction,
             runCalculation,
+            toggleTreeVisualization,
+            resetCalculation,
             getFunctionSignature,
 
             openCreateModal,

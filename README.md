@@ -8,6 +8,7 @@ A web-based interactive simulator for defining and evaluating **primitive recurs
 ## Features
 
 - **Interactive Function Builder**: Construct primitive recursive functions step-by-step with visual tree components.
+- **Recursive Calculation Tree Visualization**: Explore execution call trees showing base cases ($y = 0$), recursive steps ($y = k + 1$), composition, and returns, complete with interactive step-by-step playback, node inspection, and algebraic derivation steps.
 - **Predefined & Custom Functions**: Built-in definitions for `add` and `mult`, with support for creating custom functions.
 - **Import / Export**: Save and load function definitions in JSON format or persist them via `localStorage`.
 
